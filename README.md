@@ -124,9 +124,9 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 ``` c#
 private void ShowValidationResult()
 {
-    ErrorFirstName = validationService.GetErrorMessage(this, x => x.FirstName);
-    ErrorLastName = validationService.GetErrorMessage(this, x => x.LastName);
-    ErrorEmailAddress = validationService.GetErrorMessage(this, x => x.EmailAddress);
+    ErrorFirstName = validationService.GetErrorMessage(this, e => e.FirstName);
+    ErrorLastName = validationService.GetErrorMessage(this, e => e.LastName);
+    ErrorEmailAddress = validationService.GetErrorMessage(this, e => e.EmailAddress);
 }
 
 private void Register()
