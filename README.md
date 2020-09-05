@@ -118,6 +118,8 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
                 EmailAddressError = e.FirstError;
                 break;
         }
+        // To retrieve all the error message of the property, use:
+        var errorMessages = e.ErrorMessages;
     }
 }
 ```
