@@ -1,6 +1,6 @@
 # A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
 
-## Service interface
+### Service interface
 
 The interface is pretty simple and self-documenting:
 
@@ -14,7 +14,7 @@ public interface IValidationService
 }
 ```
 
-## Usage:
+### Usage:
 
 1. Create the validation rule models by extending the `ValidationRule<T>`.
 
@@ -144,7 +144,7 @@ private void Register()
 }	
 ```
 
-## Result
+### Result
 ![Xamarin.Android](https://i.imgur.com/SjSeUst.gif)
 
 Feel free to contribute if you find some issues or you have more ideas to add :)
