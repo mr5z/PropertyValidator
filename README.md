@@ -96,10 +96,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
         validationService.For(this)
             .AddRule(e => e.FirstName, new RequiredRule())
             .AddRule(e => e.LastName, new LengthRule(50))
-            .AddRule(e => e.EmailAddress, new EmailFormatRule());
-            
-        // Note: you can also do this:
-        // .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule(), ...)
+            .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
 
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
