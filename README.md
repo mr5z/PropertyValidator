@@ -121,7 +121,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check for every time the property have changed, you can also invoke manually the IValidationService.Validate(), check the return, if it's false, find the error message using `IValidationService.GetErrorMessage(...)`
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `IValidationService.GetErrorMessage(...)`
 
 ``` c#
 private void ShowValidationResult()
