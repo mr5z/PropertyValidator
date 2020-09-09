@@ -16,7 +16,7 @@ public interface IValidationService
 
 ### Usage:
 
-1. Create the validation rule models by extending the `ValidationRule<T>`.
+1. Create the validation rule models by extending the `ValidationRule<T>`, where T is the type of the target property.
 
 ``` c#
 // For email address
