@@ -18,5 +18,7 @@ namespace PropertyValidator.Models
         public abstract bool IsValid(T value);
 
         public abstract string ErrorMessage { get; }
+
+        public string ErrorMessageOverride { get; set; }
     }
 }

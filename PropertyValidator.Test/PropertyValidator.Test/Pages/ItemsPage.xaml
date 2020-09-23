@@ -5,8 +5,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="PropertyValidator.Test.Pages.ItemsPage">
-    <ContentPage.Content>
-        <StackLayout>
+    <ScrollView
+        VerticalOptions="FillAndExpand">
+        <StackLayout
+            Padding="4"
+            HeightRequest="2000">
             <Entry
                 Text="{Binding FirstName}"
                 Placeholder="First name" />
@@ -23,11 +26,36 @@
                 FontSize="Small" />
             <Entry
                 Text="{Binding EmailAddress}"
+                Keyboard="Email"
                 Placeholder="Email address" />
             <Label
                 Text="{Binding EmailAddressError}"
                 TextColor="Red"
                 FontSize="Small" />
+            <StackLayout
+                Padding="6">
+                <Label
+                    Margin="6"
+                    Text="Address"
+                    FontSize="Caption"/>
+                <Entry
+                    Text="{Binding PhysicalAddress.PostalCode}"
+                    Keyboard="Numeric"
+                    Placeholder="Postal code" />
+                <Entry
+                    Text="{Binding PhysicalAddress.StreetAddress}"
+                    Placeholder="Street address" />
+                <Entry
+                    Text="{Binding PhysicalAddress.City}"
+                    Placeholder="City" />
+                <Entry
+                    Text="{Binding PhysicalAddress.CountryIsoCode}"
+                    Placeholder="2 letter ISO country code" />
+                <Label
+                    Text="{Binding PhysicalAddressError}"
+                    TextColor="Red"
+                    FontSize="Small" />
+            </StackLayout>
         </StackLayout>
-    </ContentPage.Content>
+    </ScrollView>
 </ContentPage>

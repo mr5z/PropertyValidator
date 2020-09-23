@@ -20,7 +20,7 @@ namespace PropertyValidator.Services
         public RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel) where TNotifiableModel : INotifyPropertyChanged
         {
             this.notifiableModel = notifiableModel;
-            ruleCollection = new RuleCollection<TNotifiableModel>();
+            ruleCollection = new RuleCollection<TNotifiableModel>(notifiableModel);
             notifiableModel.PropertyChanged += NotifiableModel_PropertyChanged;
             var type = typeof(RuleCollection<TNotifiableModel>);
             methodInfo = type.GetMethod(nameof(RuleCollection<INotifyPropertyChanged>.GetRules));
@@ -38,8 +38,7 @@ namespace PropertyValidator.Services
             Validate(e.PropertyName);
             var errorMessages = GetRules()
                 .Where(x => x.HasError && x.PropertyName == e.PropertyName)
-                .Select(x => x.ErrorMessage)
-                .ToList();
+                .Select(x => x.ErrorMessageOverride ?? x.ErrorMessage);
             PropertyInvalid?.Invoke(this, new ValidationResultArgs(e.PropertyName, errorMessages));
         }
 
@@ -75,19 +74,23 @@ namespace PropertyValidator.Services
 
         private bool ValidateImpl(string propertyName = null)
         {
+            return ValidateRuleCollection(GetRules(), notifiableModel, propertyName);
+        }
+
+        public static bool ValidateRuleCollection(List<IValidationRule> ruleCollection, object owner, string propertyName = null)
+        {
             bool noErrors = true;
-            foreach (var rule in GetRules())
+            foreach (var rule in ruleCollection)
             {
                 if (!string.IsNullOrEmpty(propertyName) && rule.PropertyName != propertyName)
                     continue;
 
-                var property = notifiableModel.GetType().GetProperty(rule.PropertyName);
-                var value = property.GetValue(notifiableModel, null);
+                var property = owner.GetType().GetProperty(rule.PropertyName);
+                var value = property.GetValue(owner, null);
                 rule.Validate(value);
                 noErrors = noErrors && !rule.HasError;
             }
             return noErrors;
         }
-
     }
 }

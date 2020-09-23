@@ -10,5 +10,6 @@ namespace PropertyValidator.Models
         bool HasError { get; }
         bool Validate(object value);
         string ErrorMessage { get; }
+        string ErrorMessageOverride { get; set; }
     }
 }

@@ -1,8 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Authors>Mark Laureta</Authors>
+    <Company>Nkraft</Company>
+    <Description>A simple library to help you validate properties of class that implements INotifyPropertyChanged.</Description>
+    <PackageReleaseNotes>Added support for multi-property validation.</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/mr5z/PropertyValidator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mr5z/PropertyValidator</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <FileVersion>1.0.0.2</FileVersion>
+    <AssemblyVersion>1.0.0.2</AssemblyVersion>
+    <Version>1.0.2</Version>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

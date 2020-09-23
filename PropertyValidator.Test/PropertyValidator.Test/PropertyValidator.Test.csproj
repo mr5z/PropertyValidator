@@ -19,11 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\PropertyValidator\PropertyValidator.csproj" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\..\PropertyValidator\PropertyValidator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
