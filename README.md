@@ -66,6 +66,19 @@ public class LengthRule : ValidationRule<string>
         return value.Length < max;
     }
 }
+
+// A multi-property validation model. You can also reuse other ValidationRules here!
+public class AddressRule : MultiValidationRule<Address>
+{
+    protected override RuleCollection<Address> ConfigureRules(RuleCollection<Address> ruleCollection)
+    {
+        return ruleCollection
+            .AddRule(e => e.City, new RequiredRule())
+            .AddRule(e => e.CountryIsoCode, new CountryIsoCodeRule())
+            .AddRule(e => e.PostalCode, new PostalCodeRule())
+            .AddRule(e => e.StreetAddress, new RequiredRule(), new LengthRule(100));
+    }
+}
 ```
 
 
@@ -85,10 +98,12 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string EmailAddress { get; set; }
+    public Address PhysicalAddress { get; set; } = new Address();
 
     public string FirstNameError { get; set; }
     public string LastNameError { get; set; }
     public string EmailAddressError { get; set; }
+    public string PhysicalAddressError { get; set; }
 
     // You must do this only once in the initialization part of your class model.
     public void Initialize(INavigationParameters parameters)
@@ -97,6 +112,8 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
             .AddRule(e => e.FirstName, new RequiredRule())
             .AddRule(e => e.LastName, new LengthRule(50))
             .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
+            // The error message have been overriden to "Deez nuts" since an aggregated error messages is awful.
+            .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
 
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
@@ -114,6 +131,9 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
             case nameof(EmailAddress):
                 EmailAddressError = e.FirstError;
                 break;
+            case nameof(PhysicalAddress):
+                PhysicalAddressError = e.FirstError;
+                break;
         }
         // To retrieve all the error message of the property, use:
         var errorMessages = e.ErrorMessages;
@@ -129,6 +149,7 @@ private void ShowValidationResult()
     ErrorFirstName = validationService.GetErrorMessage(this, e => e.FirstName);
     ErrorLastName = validationService.GetErrorMessage(this, e => e.LastName);
     ErrorEmailAddress = validationService.GetErrorMessage(this, e => e.EmailAddress);
+    PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
 }
 
 private void Register()
