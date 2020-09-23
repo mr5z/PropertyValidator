@@ -24,23 +24,16 @@ namespace PropertyValidator.Models
 
         private void OwnerProperty_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            try
+            var eventName = nameof(INotifyPropertyChanged.PropertyChanged);
+            var field = ReflectionHelper.GetField(owner.GetType(), eventName);
+            var eventDelegate = field.GetValue(owner) as MulticastDelegate;
+            var propInfo = owner.GetType().GetProperties().FirstOrDefault(e => e.GetValue(owner) == sender);
+            if (eventDelegate != null)
             {
-                var eventName = nameof(INotifyPropertyChanged.PropertyChanged);
-                var field = ReflectionHelper.GetField(owner.GetType(), eventName);
-                var eventDelegate = field.GetValue(owner) as MulticastDelegate;
-                var propInfo = owner.GetType().GetProperties().FirstOrDefault(e => e.GetValue(owner) == sender);
-                if (eventDelegate != null)
+                foreach (var handler in eventDelegate.GetInvocationList())
                 {
-                    foreach (var handler in eventDelegate.GetInvocationList())
-                    {
-                        handler.Method.Invoke(handler.Target, new object[] { owner, new PropertyChangedEventArgs(propInfo.Name) });
-                    }
+                    handler.Method.Invoke(handler.Target, new object[] { owner, new PropertyChangedEventArgs(propInfo.Name) });
                 }
-            }
-            catch (Exception ex)
-            {
-                var msg = ex.Message;
             }
         }
 
