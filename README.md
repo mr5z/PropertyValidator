@@ -1,6 +1,6 @@
 # A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
 
-## Service interface
+### Service interface
 
 The interface is pretty simple and self-documenting:
 
@@ -14,9 +14,9 @@ public interface IValidationService
 }
 ```
 
-## Usage:
+### Usage:
 
-1. Create the validation rule models by extending the `ValidationRule<T>`.
+1. Create the validation rule models by extending the `ValidationRule<T>`, where T is the type of the target property.
 
 ``` c#
 // For email address
@@ -96,10 +96,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
         validationService.For(this)
             .AddRule(e => e.FirstName, new RequiredRule())
             .AddRule(e => e.LastName, new LengthRule(50))
-            .AddRule(e => e.EmailAddress, new EmailFormatRule());
-            
-        // Note: you can also do this:
-        // .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule(), ...)
+            .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
 
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
@@ -118,11 +115,13 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
                 EmailAddressError = e.FirstError;
                 break;
         }
+        // To retrieve all the error message of the property, use:
+        var errorMessages = e.ErrorMessages;
     }
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check for every time the property have changed, you can also invoke manually the IValidationService.Validate(), check the return, if it's false, find the error message using `IValidationService.GetErrorMessage(...)`
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `IValidationService.GetErrorMessage(...)`
 
 ``` c#
 private void ShowValidationResult()
@@ -144,7 +143,7 @@ private void Register()
 }	
 ```
 
-## Result
+### Result
 ![Xamarin.Android](https://i.imgur.com/SjSeUst.gif)
 
 Feel free to contribute if you find some issues or you have more ideas to add :)
