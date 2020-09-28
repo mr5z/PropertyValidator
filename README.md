@@ -16,7 +16,7 @@ public interface IValidationService
 
 ### Usage:
 
-1. Create the validation rule models by extending the `ValidationRule<T>`, where T is the type of the target property.
+1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
 
 ``` c#
 // For email address
@@ -166,5 +166,7 @@ private void Register()
 
 ### Result
 ![Xamarin.Android](https://i.imgur.com/SjSeUst.gif)
+
+## Support
 
 Feel free to contribute if you find some issues or you have more ideas to add :)
