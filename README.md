@@ -83,7 +83,7 @@ public class AddressRule : MultiValidationRule<Address>
 
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is used in Xamarin Forms along with the Prism library to register the service in the Dependency Injection library, but it can be used also in other .NET supported platforms.
+The example below is used in Xamarin Forms along with the Prism library to register the service in the Dependency Injection library, but it can be used also in other platforms supported by the .NET family.
 
 ``` c#
 public class ItemsPageViewModel : BaseViewModel, IInitialize
@@ -141,7 +141,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `IValidationService.GetErrorMessage(...)`
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `GetErrorMessage(...)`
 
 ``` c#
 private void ShowValidationResult()
