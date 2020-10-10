@@ -1,4 +1,4 @@
-# A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
+## A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
 
 ### Setup
 
