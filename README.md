@@ -1,5 +1,10 @@
 # A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
 
+### Setup
+
+ * Available on NuGet: [PropertyValidator](http://www.nuget.org/packages/PropertyValidator) [![NuGet](https://img.shields.io/nuget/v/PropertyValidator.svg?label=NuGet)](https://www.nuget.org/packages/PropertyValidator)
+ * Available on GitHub:
+
 ### Service interface
 
 The interface is pretty simple and self-documenting:
