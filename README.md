@@ -3,7 +3,7 @@
 ### Setup
 
  * Available on NuGet: [PropertyValidator](http://www.nuget.org/packages/PropertyValidator) [![NuGet](https://img.shields.io/nuget/v/PropertyValidator.svg?label=NuGet)](https://www.nuget.org/packages/PropertyValidator)
- * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
+ * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702?version=1.0.3) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
 
 ### Service interface
 
