@@ -100,7 +100,7 @@ public class AddressRule : MultiValidationRule<Address>
 
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is used in Xamarin Forms along with [Prism](https://github.com/PrismLibrary/Prism) to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, but it can also be used in other platforms supported by the .NET family.
+The example below is used in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) library to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, but it can also be used in other platforms supported by the .NET family.
 
 ``` c#
 public class ItemsPageViewModel : BaseViewModel, IInitialize
