@@ -36,8 +36,8 @@ namespace PropertyValidator.Services
 
         private void NotifiableModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var targetProperties = GetRules().Select(it => it.PropertyName);
-            if (!targetProperties.Contains(e.PropertyName))
+            var containsTarget = GetRules().Any(it => it.PropertyName == e.PropertyName);
+            if (!containsTarget)
                 return;
 
             Validate(e.PropertyName);
