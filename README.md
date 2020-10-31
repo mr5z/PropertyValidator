@@ -1,4 +1,9 @@
-# A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
+## A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
+
+### Setup
+
+ * Available on NuGet: [PropertyValidator](http://www.nuget.org/packages/PropertyValidator) [![NuGet](https://img.shields.io/nuget/v/PropertyValidator.svg?label=NuGet)](https://www.nuget.org/packages/PropertyValidator)
+ * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702?version=1.0.3) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
 
 ### Service interface
 
@@ -16,7 +21,7 @@ public interface IValidationService
 
 ### Usage:
 
-1. Create the validation rule models by extending the `ValidationRule<T>`, where T is the type of the target property.
+1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
 
 ``` c#
 // For email address
@@ -83,7 +88,7 @@ public class AddressRule : MultiValidationRule<Address>
 
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is used in Xamarin Forms along with the Prism library to register the service in the Dependency Injection library, but it can be used also in other .NET supported platforms.
+The example below is used in Xamarin Forms along with the Prism library to register the service in the Dependency Injection library, but it can be used also in other platforms supported by the .NET family.
 
 ``` c#
 public class ItemsPageViewModel : BaseViewModel, IInitialize
@@ -141,7 +146,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `IValidationService.GetErrorMessage(...)`
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `GetErrorMessage(...)`
 
 ``` c#
 private void ShowValidationResult()
@@ -167,4 +172,8 @@ private void Register()
 ### Result
 ![Xamarin.Android](https://i.imgur.com/SjSeUst.gif)
 
+## Support
+
 Feel free to contribute if you find some issues or you have more ideas to add :)
+
+ETH: 0x11bafdeCfb4Aa03D029ef10c9cE8DCB41B83aFb1
