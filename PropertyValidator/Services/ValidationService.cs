@@ -44,7 +44,7 @@ namespace PropertyValidator.Services
 
             var errorMessages = GetRules()
                 .Where(it => it.HasError && it.PropertyName == e.PropertyName)
-                .Select(it => new { it.PropertyName, ErrorMessage = it.ErrorMessageOverride ?? it.ErrorMessage })
+                .Select(it => new { it.PropertyName, ErrorMessage = it.Error })
                 .GroupBy(it => it.PropertyName)
                 .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
 
@@ -59,7 +59,7 @@ namespace PropertyValidator.Services
             var propertyName = expression.GetMemberName();
             return GetRules()
                 .Where(it => it.HasError && it.PropertyName == propertyName)
-                .Select(it => it.ErrorMessage)
+                .Select(it => it.Error)
                 .ToList();
         }
 
