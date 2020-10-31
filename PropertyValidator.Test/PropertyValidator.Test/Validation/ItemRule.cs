@@ -11,7 +11,7 @@ namespace PropertyValidator.Test.Validation
             return ruleCollection
                 .AddRule(e => e.Id, new RequiredRule())
                 .AddRule(e => e.Text, new RequiredRule())
-                .AddRule(e => e.Description, new LengthRule(20));
+                .AddRule(e => e.Description, new MaxLengthRule(20));
         }
     }
 }

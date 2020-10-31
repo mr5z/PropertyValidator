@@ -13,6 +13,7 @@ namespace PropertyValidator.Helpers
                         BindingFlags.NonPublic |
                         BindingFlags.DeclaredOnly;
             FieldInfo field;
+            // TODO find a way to break
             while ((field = fromType.GetField(fieldName, flags)) == null && (fromType = fromType.BaseType) != null)
                 ;
             return field;

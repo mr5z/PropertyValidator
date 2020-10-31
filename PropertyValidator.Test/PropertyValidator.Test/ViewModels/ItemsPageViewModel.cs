@@ -3,16 +3,26 @@ using Prism.Navigation;
 using PropertyValidator.Services;
 using PropertyValidator.Test.Validation;
 using PropertyValidator.Models;
+using PropertyValidator.Test.Helpers;
+using Prism.Commands;
+using PropertyValidator.Test.Services;
 
 namespace PropertyValidator.Test.ViewModels
 {
     public class ItemsPageViewModel : BaseViewModel, IInitialize
     {
         private readonly IValidationService validationService;
+        private readonly IToastService toastService;
 
-        public ItemsPageViewModel(INavigationService navigationService, IValidationService validationService) : base(navigationService)
+        public ItemsPageViewModel(
+            INavigationService navigationService,
+            IValidationService validationService,
+            IToastService toastService) : base(navigationService)
         {
             this.validationService = validationService;
+            this.toastService = toastService;
+
+            SubmitCommand = new DelegateCommand(Submit);
         }
 
         public string FirstName { get; set; }
@@ -23,6 +33,7 @@ namespace PropertyValidator.Test.ViewModels
         public string StreetAddress { get; set; }
         public string City { get; set; }
         public string CountryIsoCode { get; set; }
+        public DelegateCommand SubmitCommand { get; set; }
 
         public string FirstNameError { get; set; }
         public string LastNameError { get; set; }
@@ -32,10 +43,10 @@ namespace PropertyValidator.Test.ViewModels
         public void Initialize(INavigationParameters parameters)
         {
             validationService.For(this)
-                .AddRule(e => e.FirstName, new RequiredRule())
-                .AddRule(e => e.LastName, new LengthRule(20))
+                .AddRule(e => e.FirstName, new RequiredRule(), new MinLengthRule(2))
+                .AddRule(e => e.LastName, new MaxLengthRule(5))
                 .AddRule(e => e.EmailAddress, new EmailFormatRule())
-                .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule());
+                .AddRule(e => e.PhysicalAddress, "Deez nuts!", new AddressRule());
 
             validationService.PropertyInvalid += ValidationService_PropertyInvalid;
         }
@@ -58,8 +69,35 @@ namespace PropertyValidator.Test.ViewModels
                     break;
             }
 
+            e.FillErrorProperty(this);
+
             // To retrieve all the error message of the property, use:
             var errorMessages = e.ErrorMessages;
+
+            Debug.Log("error key: {0}, value: {1}", e.PropertyName, e.FirstError);
+        }
+
+        private void ShowValidationResult()
+        {
+            FirstNameError = validationService.GetErrorMessage(this, e => e.FirstName);
+            LastNameError = validationService.GetErrorMessage(this, e => e.LastName);
+            EmailAddressError = validationService.GetErrorMessage(this, e => e.EmailAddress);
+            PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
+        }
+
+        private void Submit()
+        {
+            if (!validationService.Validate())
+            {
+                ShowValidationResult();
+                var errors = $@"
+FirstName: {FirstNameError}
+LastName: {LastNameError}
+EmailAddress: {EmailAddressError}
+PhysicalAddress: {PhysicalAddressError}
+";
+                toastService.ShowMessage("Errors: {0}", errors);
+            }
         }
     }
 }

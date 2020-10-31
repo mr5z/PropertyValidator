@@ -11,7 +11,7 @@ namespace PropertyValidator.Test.Validation
                 .AddRule(e => e.City, new RequiredRule())
                 .AddRule(e => e.CountryIsoCode, new CountryIsoCodeRule())
                 .AddRule(e => e.PostalCode, new PostalCodeRule())
-                .AddRule(e => e.StreetAddress, new RequiredRule(), new LengthRule(100));
+                .AddRule(e => e.StreetAddress, new RequiredRule(), new MaxLengthRule(100));
         }
     }
 }

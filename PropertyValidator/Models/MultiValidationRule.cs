@@ -1,9 +1,7 @@
 ﻿using PropertyValidator.Services;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 
 namespace PropertyValidator.Models
 {
@@ -32,6 +30,14 @@ namespace PropertyValidator.Models
             ValidationService.ValidateRuleCollection(validationRules, sender);
         }
 
-        public override sealed string ErrorMessage => $"[{string.Join(", ", validationRules.Where(e => e.HasError).Select(e => e.ErrorMessage))}]";
+        // TODO convert to List<string>
+        public override sealed string ErrorMessage => $"[{string.Join(",", ErrorsAsJsonString())}]";
+
+        private IEnumerable<string> ErrorsAsJsonString()
+        {
+            return validationRules
+                .Where(e => e.HasError)
+                .Select(e => $"{e.PropertyName}:\"{e.ErrorMessage}\"");
+        }
     }
 }

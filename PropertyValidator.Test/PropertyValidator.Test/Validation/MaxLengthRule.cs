@@ -5,11 +5,11 @@ using System.Text;
 
 namespace PropertyValidator.Test.Validation
 {
-    public class LengthRule : ValidationRule<string>
+    public class MaxLengthRule : ValidationRule<string>
     {
         private readonly int maxLength;
 
-        public LengthRule(int maxLength)
+        public MaxLengthRule(int maxLength)
         {
             this.maxLength = maxLength;
         }
@@ -21,7 +21,7 @@ namespace PropertyValidator.Test.Validation
             if (string.IsNullOrEmpty(value))
                 return true;
 
-            return value.Length < maxLength;
+            return value.Length <= maxLength;
         }
     }
 }

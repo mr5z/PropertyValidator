@@ -17,7 +17,8 @@ namespace PropertyValidator.Services
 
         public event EventHandler<ValidationResultArgs> PropertyInvalid;
 
-        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel) where TNotifiableModel : INotifyPropertyChanged
+        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel) 
+            where TNotifiableModel : INotifyPropertyChanged
         {
             this.notifiableModel = notifiableModel;
             ruleCollection = new RuleCollection<TNotifiableModel>(notifiableModel);
@@ -35,24 +36,37 @@ namespace PropertyValidator.Services
 
         private void NotifiableModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            var targetProperties = GetRules().Select(it => it.PropertyName);
+            if (!targetProperties.Contains(e.PropertyName))
+                return;
+
             Validate(e.PropertyName);
+
             var errorMessages = GetRules()
-                .Where(x => x.HasError && x.PropertyName == e.PropertyName)
-                .Select(x => x.ErrorMessageOverride ?? x.ErrorMessage);
+                .Where(it => it.HasError && it.PropertyName == e.PropertyName)
+                .Select(it => new { it.PropertyName, ErrorMessage = it.ErrorMessageOverride ?? it.ErrorMessage })
+                .GroupBy(it => it.PropertyName)
+                .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
+
             PropertyInvalid?.Invoke(this, new ValidationResultArgs(e.PropertyName, errorMessages));
         }
 
-        public List<string> GetErrorMessages<TNotifiableModel>(TNotifiableModel _, Expression<Func<TNotifiableModel, object>> expression) where TNotifiableModel : INotifyPropertyChanged
+        public List<string> GetErrorMessages<TNotifiableModel>(
+            TNotifiableModel _, 
+            Expression<Func<TNotifiableModel, object>> expression) 
+            where TNotifiableModel : INotifyPropertyChanged
         {
             var propertyName = expression.GetMemberName();
-            var rules = GetRules();
-            return rules
-                .Where(x => x.HasError && x.PropertyName == propertyName)
-                .Select(x => x.ErrorMessage)
+            return GetRules()
+                .Where(it => it.HasError && it.PropertyName == propertyName)
+                .Select(it => it.ErrorMessage)
                 .ToList();
         }
 
-        public string GetErrorMessage<TNotifiableModel>(TNotifiableModel notifiableProperty, Expression<Func<TNotifiableModel, object>> expression) where TNotifiableModel : INotifyPropertyChanged
+        public string GetErrorMessage<TNotifiableModel>(
+            TNotifiableModel notifiableProperty, 
+            Expression<Func<TNotifiableModel, object>> expression) 
+            where TNotifiableModel : INotifyPropertyChanged
         {
             return GetErrorMessages(notifiableProperty, expression).FirstOrDefault();
         }
@@ -77,7 +91,10 @@ namespace PropertyValidator.Services
             return ValidateRuleCollection(GetRules(), notifiableModel, propertyName);
         }
 
-        public static bool ValidateRuleCollection(List<IValidationRule> ruleCollection, object owner, string propertyName = null)
+        public static bool ValidateRuleCollection(
+            List<IValidationRule> ruleCollection,
+            object owner,
+            string propertyName = null)
         {
             bool noErrors = true;
             foreach (var rule in ruleCollection)

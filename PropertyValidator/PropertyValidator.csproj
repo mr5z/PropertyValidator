@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Authors>Mark Laureta</Authors>
     <Company>Nkraft</Company>
@@ -10,9 +10,9 @@
     <PackageProjectUrl>https://github.com/mr5z/PropertyValidator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mr5z/PropertyValidator</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <FileVersion>1.0.0.3</FileVersion>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
-    <Version>1.0.3</Version>
+    <FileVersion>1.0.0.4</FileVersion>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
+    <Version>1.0.4</Version>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 

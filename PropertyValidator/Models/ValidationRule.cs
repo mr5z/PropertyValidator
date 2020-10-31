@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace PropertyValidator.Models
@@ -10,10 +11,7 @@ namespace PropertyValidator.Models
 
         public bool HasError { get; private set; }
 
-        public bool Validate(object value)
-        {
-            return HasError = !IsValid((T)value);
-        }
+        public bool Validate(object value) => (HasError = !IsValid((T)value));
 
         public abstract bool IsValid(T value);
 
