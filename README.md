@@ -3,18 +3,30 @@
 ### Setup
 
  * Available on NuGet: [PropertyValidator](http://www.nuget.org/packages/PropertyValidator) [![NuGet](https://img.shields.io/nuget/v/PropertyValidator.svg?label=NuGet)](https://www.nuget.org/packages/PropertyValidator)
- * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702?version=1.0.3) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
+ * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702?version=1.0.4) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
 
 ### Service interface
 
 The interface is pretty simple and self-documenting:
 
 ``` c#
+//  (yet with comments)
 public interface IValidationService
 {
-    RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel) where TNotifiableModel : INotifyPropertyChanged;
-    string GetErrorMessage<TNotifiableModel>(TNotifiableModel notifiableModel, Expression<Func<TNotifiableModel, object>> expression) where TNotifiableModel : INotifyPropertyChanged;
+    // For registration
+    RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel)
+        where TNotifiableModel : INotifyPropertyChanged;
+
+    // Retrieve error messages per property
+    string GetErrorMessage<TNotifiableModel>(
+        TNotifiableModel notifiableModel,
+        Expression<Func<TNotifiableModel, object>> expression)
+        where TNotifiableModel : INotifyPropertyChanged;
+
+    // Manually trigger the validation
     bool Validate();
+
+    // Subscribe to error events (cleared/raised)
     event EventHandler<ValidationResultArgs> PropertyInvalid;
 }
 ```
@@ -140,20 +152,26 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
                 PhysicalAddressError = e.FirstError;
                 break;
         }
+        
         // To retrieve all the error message of the property, use:
         var errorMessages = e.ErrorMessages;
+        
+        // If you have a bunch of error properties, skip the tall switch-case and be more productive by using this:
+        e.FillErrorProperty(this);
+        // This will basically auto-fill the error properties you have in the target instance but,
+        // you must follow this convention: "<PropertyName>" + "Error"
     }
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `IValidationService.Validate()`, check the return, if it's false, find the error message using `GetErrorMessage(...)`
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService#Validate()`, check the return, if it's false, find the error message using `ValidationService#GetErrorMessage(...)`
 
 ``` c#
 private void ShowValidationResult()
 {
-    ErrorFirstName = validationService.GetErrorMessage(this, e => e.FirstName);
-    ErrorLastName = validationService.GetErrorMessage(this, e => e.LastName);
-    ErrorEmailAddress = validationService.GetErrorMessage(this, e => e.EmailAddress);
+    FirstNameError = validationService.GetErrorMessage(this, e => e.FirstName);
+    LastNameError = validationService.GetErrorMessage(this, e => e.LastName);
+    EmailAddressError = validationService.GetErrorMessage(this, e => e.EmailAddress);
     PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
 }
 
@@ -170,7 +188,8 @@ private void Register()
 ```
 
 ### Result
-![Xamarin.Android](https://i.imgur.com/SjSeUst.gif)
+![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
+
 
 ## Support
 
