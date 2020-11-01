@@ -209,6 +209,8 @@ validationService.For(this, autofill: true)
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
 
+XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/master/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
+
 
 ## Support
 
