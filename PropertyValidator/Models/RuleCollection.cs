@@ -74,12 +74,6 @@ namespace PropertyValidator.Models
             return this;
         }
 
-        public RuleCollection<TModel> WithDelay(TimeSpan delay)
-        {
-            // TODO configure delay for next version. Issue #1
-            return this;
-        }
-
         public List<IValidationRule> GetRules()
         {
             return validationRuleList;

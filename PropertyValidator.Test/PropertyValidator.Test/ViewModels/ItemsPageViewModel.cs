@@ -42,13 +42,13 @@ namespace PropertyValidator.Test.ViewModels
 
         public void Initialize(INavigationParameters parameters)
         {
-            validationService.For(this)
+            validationService.For(this, autofill: true)
                 .AddRule(e => e.FirstName, new RequiredRule(), new MinLengthRule(2))
                 .AddRule(e => e.LastName, new MaxLengthRule(5))
                 .AddRule(e => e.EmailAddress, new EmailFormatRule())
                 .AddRule(e => e.PhysicalAddress, "Deez nuts!", new AddressRule());
 
-            validationService.PropertyInvalid += ValidationService_PropertyInvalid;
+            //validationService.PropertyInvalid += ValidationService_PropertyInvalid;
         }
 
         private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)

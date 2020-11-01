@@ -8,7 +8,7 @@ namespace PropertyValidator.Services
     public interface IValidationService
     {
         // For registration
-        RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel)
+        RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel, bool autofill = false)
             where TNotifiableModel : INotifyPropertyChanged;
 
         // Retrieve error messages per property

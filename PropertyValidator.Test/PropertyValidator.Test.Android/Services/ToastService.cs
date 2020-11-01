@@ -26,7 +26,7 @@ namespace PropertyValidator.Test.Droid.Services
         public void ShowMessage(string message, params string[] args)
         {
             toast?.Cancel();
-            toast = Toast.MakeText(context, string.Format(message, args), ToastLength.Short);
+            toast = Toast.MakeText(context, string.Format(message, args), ToastLength.Long);
             toast.Show();
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace PropertyValidator.Models
 {
@@ -12,6 +13,9 @@ namespace PropertyValidator.Models
         public bool HasError { get; private set; }
 
         public bool Validate(object value) => (HasError = !IsValid((T)value));
+
+        // TODO support async validations
+        //public virtual Task<bool> IsValidAsync(T value) => Task.FromResult(IsValid(value));
 
         public abstract bool IsValid(T value);
 

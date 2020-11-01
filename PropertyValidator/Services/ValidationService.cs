@@ -13,14 +13,17 @@ namespace PropertyValidator.Services
     {
         private INotifyPropertyChanged notifiableModel;
         private object ruleCollection;
+        private bool autofill;
         private MethodInfo methodInfo;
 
         public event EventHandler<ValidationResultArgs> PropertyInvalid;
 
-        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel) 
+        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel, bool autofill) 
             where TNotifiableModel : INotifyPropertyChanged
         {
             this.notifiableModel = notifiableModel;
+            this.autofill = autofill;
+
             ruleCollection = new RuleCollection<TNotifiableModel>(notifiableModel);
             notifiableModel.PropertyChanged += NotifiableModel_PropertyChanged;
             var type = typeof(RuleCollection<TNotifiableModel>);
@@ -48,7 +51,10 @@ namespace PropertyValidator.Services
                 .GroupBy(it => it.PropertyName)
                 .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
 
-            PropertyInvalid?.Invoke(this, new ValidationResultArgs(e.PropertyName, errorMessages));
+            var eventArgs = new ValidationResultArgs(e.PropertyName, errorMessages);
+            if (autofill)
+                eventArgs.FillErrorProperty(notifiableModel);
+            PropertyInvalid?.Invoke(this, eventArgs);
         }
 
         public List<string> GetErrorMessages<TNotifiableModel>(
@@ -93,7 +99,7 @@ namespace PropertyValidator.Services
 
         public static bool ValidateRuleCollection(
             List<IValidationRule> ruleCollection,
-            object owner,
+            object target,
             string propertyName = null)
         {
             bool noErrors = true;
@@ -102,8 +108,8 @@ namespace PropertyValidator.Services
                 if (!string.IsNullOrEmpty(propertyName) && rule.PropertyName != propertyName)
                     continue;
 
-                var property = owner.GetType().GetProperty(rule.PropertyName);
-                var value = property.GetValue(owner, null);
+                var property = target.GetType().GetProperty(rule.PropertyName);
+                var value = property.GetValue(target, null);
                 rule.Validate(value);
                 noErrors = noErrors && !rule.HasError;
             }
