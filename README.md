@@ -31,7 +31,7 @@ public interface IValidationService
 }
 ```
 
-### Usage:
+### Usage
 
 1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
 
@@ -100,7 +100,8 @@ public class AddressRule : MultiValidationRule<Address>
 
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is used in Xamarin Forms along with [Prism](https://github.com/PrismLibrary/Prism) to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, but it can also be used in other platforms supported by the .NET family.
+The example below is implemented in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) library to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, and [PropertyChanged.Fody](https://github.com/Fody/PropertyChanged) for automatic INPC generation of getters/setters.
+Take note that this library is not limited to Xamarin only, it's available to all platforms supported by .NET family.
 
 ``` c#
 public class ItemsPageViewModel : BaseViewModel, IInitialize
@@ -187,8 +188,28 @@ private void Register()
 }	
 ```
 
+### Autofill
+When autofill is enabled, each property you registered in the `.AddRule(...)` chain must have a backing error property and it must also follow the naming convention
+```c#
+public string <PropertyName>Error { get; set; }
+```
+Having a property `FirstName` must have a corresponding error property of `FirstNameError`.
+Once enabled, subscribing to the `PropertyInvalid` event becomes optional.
+```c#
+validationService.For(this, autofill: true)
+    .AddRule(e => e.FirstName, new RequiredRule())
+    .AddRule(e => e.LastName, new LengthRule(50))
+    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
+    .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
+    
+// We don't need to subscribe to the event anymore
+// validationService.PropertyInvalid += ValidationService_PropertyInvalid;
+```
+
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
+
+XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/master/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
 
 
 ## Support
