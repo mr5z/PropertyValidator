@@ -202,7 +202,7 @@ validationService.For(this, autofill: true)
     .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
     .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
     
-// We don't need to the event anymore
+// We don't need to subscribe to the event anymore
 // validationService.PropertyInvalid += ValidationService_PropertyInvalid;
 ```
 
