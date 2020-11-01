@@ -31,7 +31,7 @@ public interface IValidationService
 }
 ```
 
-### Usage:
+### Usage
 
 1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
 
@@ -100,7 +100,8 @@ public class AddressRule : MultiValidationRule<Address>
 
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is used in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) library to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, but it can also be used in other platforms supported by the .NET family.
+The example below is implemented in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) library to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, and [PropertyChanged.Fody](https://github.com/Fody/PropertyChanged) for automatic INPC generation of getters/setters.
+Take note that this library is not limited to Xamarin only, it's available to all platforms supported by .NET family.
 
 ``` c#
 public class ItemsPageViewModel : BaseViewModel, IInitialize
