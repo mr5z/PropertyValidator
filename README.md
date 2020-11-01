@@ -187,6 +187,24 @@ private void Register()
 }	
 ```
 
+### Autofill
+When autofill is enabled, each property you registered in the `.AddRule(...)` chain must have a backing error property and it must also follow the naming convention
+```c#
+public string <PropertyName>Error { get; set; }
+```
+Example: Having a property `FirstName` must have a corresponding error property of `FirstNameError`.
+Once enabled, subscribing to the `PropertyInvalid` event is now optional.
+```c#
+validationService.For(this, autofill: true)
+    .AddRule(e => e.FirstName, new RequiredRule())
+    .AddRule(e => e.LastName, new LengthRule(50))
+    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
+    .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
+    
+// We don't need to do this anymore
+// validationService.PropertyInvalid += ValidationService_PropertyInvalid;
+```
+
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
 
