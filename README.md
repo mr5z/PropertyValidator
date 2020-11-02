@@ -193,8 +193,8 @@ When autofill is enabled, each property you registered in the `.AddRule(...)` ch
 ```c#
 public string <PropertyName>Error { get; set; }
 ```
-Having a property `FirstName` must have a corresponding error property of `FirstNameError`.
-Once enabled, subscribing to the `PropertyInvalid` event becomes optional.
+Thus having a property `FirstName` must have a corresponding error property of `FirstNameError`.
+Once this is enabled, subscribing to the `PropertyInvalid` event becomes optional.
 ```c#
 validationService.For(this, autofill: true)
     .AddRule(e => e.FirstName, new RequiredRule())
