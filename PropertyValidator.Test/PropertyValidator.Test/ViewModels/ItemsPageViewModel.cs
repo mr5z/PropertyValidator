@@ -6,6 +6,7 @@ using PropertyValidator.Models;
 using PropertyValidator.Test.Helpers;
 using Prism.Commands;
 using PropertyValidator.Test.Services;
+using System;
 
 namespace PropertyValidator.Test.ViewModels
 {
@@ -42,7 +43,9 @@ namespace PropertyValidator.Test.ViewModels
 
         public void Initialize(INavigationParameters parameters)
         {
-            validationService.For(this, autofill: true)
+            validationService.For(this, 
+                autofill: true,
+                delay: TimeSpan.FromSeconds(0.7))
                 .AddRule(e => e.FirstName, new RequiredRule(), new MinLengthRule(2))
                 .AddRule(e => e.LastName, new MaxLengthRule(5))
                 .AddRule(e => e.EmailAddress, new EmailFormatRule())

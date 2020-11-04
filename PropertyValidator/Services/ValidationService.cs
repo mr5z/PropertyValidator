@@ -6,6 +6,8 @@ using System.ComponentModel;
 using System.Reflection;
 using PropertyValidator.Extensions;
 using PropertyValidator.Models;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace PropertyValidator.Services
 {
@@ -14,15 +16,20 @@ namespace PropertyValidator.Services
         private INotifyPropertyChanged notifiableModel;
         private object ruleCollection;
         private bool autofill;
+        private TimeSpan? delay;
         private MethodInfo methodInfo;
+        private CancellationTokenSource cts;
 
         public event EventHandler<ValidationResultArgs> PropertyInvalid;
 
-        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel, bool autofill) 
-            where TNotifiableModel : INotifyPropertyChanged
+        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(
+            TNotifiableModel notifiableModel,
+            bool autofill,
+            TimeSpan? delay) where TNotifiableModel : INotifyPropertyChanged
         {
             this.notifiableModel = notifiableModel;
             this.autofill = autofill;
+            this.delay = delay;
 
             ruleCollection = new RuleCollection<TNotifiableModel>(notifiableModel);
             notifiableModel.PropertyChanged += NotifiableModel_PropertyChanged;
@@ -37,11 +44,42 @@ namespace PropertyValidator.Services
             return (List<IValidationRule>)returnValue;
         }
 
-        private void NotifiableModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void NotifiableModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var containsTarget = GetRules().Any(it => it.PropertyName == e.PropertyName);
             if (!containsTarget)
                 return;
+
+            await PropertyChangedAsync(sender, e);
+
+            // TODO use this
+            //_ = PropertyChangedAsync(sender, e).ContinueWith((task, state) =>
+            //{
+            //    var threadId = Thread.CurrentThread.ManagedThreadId;
+            //    Exception ex = task.Exception;
+            //    while (ex is AggregateException && ex.InnerException != null)
+            //        ex = ex.InnerException;
+            //    throw ex;
+            //},
+            //TaskContinuationOptions.OnlyOnFaulted,
+            //TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private async Task PropertyChangedAsync(object sender, PropertyChangedEventArgs e)
+        {
+            if (delay != null)
+            {
+                cts?.Cancel();
+                cts = new CancellationTokenSource();
+                try
+                {
+                    await Task.Delay(delay.Value, cts.Token);
+                }
+                catch (TaskCanceledException)
+                {
+                    return;
+                }
+            }
 
             Validate(e.PropertyName);
 

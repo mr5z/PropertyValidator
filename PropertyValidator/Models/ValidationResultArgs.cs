@@ -30,7 +30,7 @@ namespace PropertyValidator.Models
             var errorProperty = PropertyName + KnownErrorPropertyPattern;
             var propInfo = notifiableModel.GetType().GetProperty(errorProperty);
             if (propInfo == null)
-                throw new TargetException($"{errorProperty} is not found for target '{notifiableModel.GetType().Name}'");
+                throw new TargetException($"Property '{errorProperty}' not found in target '{notifiableModel.GetType().Name}'");
             propInfo.SetValue(notifiableModel, FirstError);
         }
     }
