@@ -3,7 +3,7 @@
 ### Setup
 
  * Available on NuGet: [PropertyValidator](http://www.nuget.org/packages/PropertyValidator) [![NuGet](https://img.shields.io/nuget/v/PropertyValidator.svg?label=NuGet)](https://www.nuget.org/packages/PropertyValidator)
- * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702?version=1.0.4) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
+ * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
 
 ### Service interface
 
@@ -193,8 +193,8 @@ When autofill is enabled, each property you registered in the `.AddRule(...)` ch
 ```c#
 public string <PropertyName>Error { get; set; }
 ```
-Having a property `FirstName` must have a corresponding error property of `FirstNameError`.
-Once enabled, subscribing to the `PropertyInvalid` event becomes optional.
+Thus having a property `FirstName` must have a corresponding error property of `FirstNameError`.
+Once this is enabled, subscribing to the `PropertyInvalid` event becomes optional.
 ```c#
 validationService.For(this, autofill: true)
     .AddRule(e => e.FirstName, new RequiredRule())
