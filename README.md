@@ -206,6 +206,17 @@ validationService.For(this, autofill: true)
 // validationService.PropertyInvalid += ValidationService_PropertyInvalid;
 ```
 
+### Delay
+![Impatient UI](https://i.redd.it/emd3wuhfty361.png)
+Don't be this guy. To solve this, use **delay**!
+```c#
+validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
+    .AddRule(e => e.FirstName, new RequiredRule())
+    .AddRule(e => e.LastName, new LengthRule(50))
+    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
+    .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
+```
+
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
 
