@@ -50,19 +50,29 @@ namespace PropertyValidator.Services
             if (!containsTarget)
                 return;
 
+            // I really don't like to use `async void` but 
+            // I can't make the .ContinueWith to propagate
+            // the exception back to original context i.e., main thread
+            // but to back up this solution, C# overlords say it's okay
+            // to have async void but for top-level event handlers only
+            // link: https://stackoverflow.com/a/19415703/2304737
             await PropertyChangedAsync(sender, e);
 
-            // TODO use this
-            //_ = PropertyChangedAsync(sender, e).ContinueWith((task, state) =>
+            // TODO not working but preferrable to use this
+            //_ = PropertyChangedAsync(sender, e).ContinueWith(task =>
             //{
+            //    //if (task.Exception != null)
+            //    //    throw task.Exception;
+
             //    var threadId = Thread.CurrentThread.ManagedThreadId;
             //    Exception ex = task.Exception;
             //    while (ex is AggregateException && ex.InnerException != null)
             //        ex = ex.InnerException;
             //    throw ex;
             //},
-            //TaskContinuationOptions.OnlyOnFaulted,
-            //TaskScheduler.FromCurrentSynchronizationContext());
+            //cancellationToken: default,
+            //continuationOptions: TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent,
+            //scheduler: TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private async Task PropertyChangedAsync(object sender, PropertyChangedEventArgs e)
