@@ -1,9 +1,22 @@
 ## A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
 
-### Setup
+### Installation
 
  * Available on NuGet: [PropertyValidator](http://www.nuget.org/packages/PropertyValidator) [![NuGet](https://img.shields.io/nuget/v/PropertyValidator.svg?label=NuGet)](https://www.nuget.org/packages/PropertyValidator)
- * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]() 
+ * Available on GitHub: [PropertyValidator](https://github.com/mr5z/PropertyValidator/packages/385702) [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)]()
+ 
+### Result
+![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
+
+XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/master/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
+
+## Example usage
+```c#
+        validationService.For(this)
+            .AddRule(e => e.FirstName, new RequiredRule())
+            .AddRule(e => e.LastName, new LengthRule(50))
+            .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
+```
 
 ### Service interface
 
@@ -31,7 +44,7 @@ public interface IValidationService
 }
 ```
 
-### Usage
+### Setup
 
 1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
 
@@ -217,12 +230,6 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
     .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
     .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
 ```
-
-### Result
-![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
-
-XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/master/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
-
 
 ## Support
 
