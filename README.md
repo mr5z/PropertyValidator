@@ -208,6 +208,7 @@ validationService.For(this, autofill: true)
 
 ### Delay
 ![Impatient UI](https://i.redd.it/emd3wuhfty361.png)
+
 Don't be this guy. To solve this, use **delay**!
 ```c#
 validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
