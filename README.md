@@ -4,7 +4,7 @@
 
 | Package | NuGet Stable | NuGet Pre-release | GitHub Release | Downloads |
 | ------- | ------------ | ----------------- | --------- | ----- |
-| [PropertyValidator](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator](https://img.shields.io/nuget/v/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator](https://img.shields.io/nuget/vpre/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator GitHub](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)](https://github.com/mr5z/PropertyValidator/packages/385702) | [![PropertyValidator](https://img.shields.io/nuget/dt/PropertyValidator.svg)](https://www.nuget.org/packages/Dapper/) |
+| [PropertyValidator](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator](https://img.shields.io/nuget/v/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator](https://img.shields.io/nuget/vpre/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator GitHub](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)](https://github.com/mr5z/PropertyValidator/packages/385702) | [![PropertyValidator](https://img.shields.io/nuget/dt/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) |
  
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
