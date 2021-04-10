@@ -29,7 +29,7 @@ namespace PropertyValidator.Test.ViewModels
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string EmailAddress { get; set; }
-        public Address PhysicalAddress { get; set; } = new Address();
+        public Address PhysicalAddress { get; set; }
         public int PostalCode { get; set; }
         public string StreetAddress { get; set; }
         public string City { get; set; }

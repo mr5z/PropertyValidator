@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace PropertyValidator.Models
 {
@@ -11,7 +10,7 @@ namespace PropertyValidator.Models
     {
         private const string KnownErrorPropertyPattern = "Error";
 
-        public ValidationResultArgs(string propertyName, IDictionary<string, IEnumerable<string>> errorDictionary)
+        public ValidationResultArgs(string propertyName, IDictionary<string, IEnumerable<string?>> errorDictionary)
         {
             PropertyName = propertyName;
             ErrorDictionary = errorDictionary;
@@ -19,11 +18,11 @@ namespace PropertyValidator.Models
 
         public string PropertyName { get; }
 
-        public IEnumerable<string> ErrorMessages => ErrorDictionary.Values.FirstOrDefault();
+        public IEnumerable<string?> ErrorMessages => ErrorDictionary.Values.FirstOrDefault();
 
-        public IDictionary<string, IEnumerable<string>> ErrorDictionary { get; }
+        public IDictionary<string, IEnumerable<string?>> ErrorDictionary { get; }
 
-        public string FirstError => ErrorDictionary.Values.FirstOrDefault()?.FirstOrDefault();
+        public string? FirstError => ErrorDictionary.Values.FirstOrDefault()?.FirstOrDefault();
 
         public void FillErrorProperty<T>(T notifiableModel) where T : INotifyPropertyChanged
         {

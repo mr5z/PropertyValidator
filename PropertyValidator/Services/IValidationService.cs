@@ -15,7 +15,7 @@ namespace PropertyValidator.Services
             where TNotifiableModel : INotifyPropertyChanged;
 
         // Retrieve error messages per property
-        string GetErrorMessage<TNotifiableModel>(
+        string? GetErrorMessage<TNotifiableModel>(
             TNotifiableModel notifiableModel,
             Expression<Func<TNotifiableModel, object>> expression)
             where TNotifiableModel : INotifyPropertyChanged;
@@ -24,6 +24,6 @@ namespace PropertyValidator.Services
         bool Validate();
 
         // Subscribe to error events (cleared/raised)
-        event EventHandler<ValidationResultArgs> PropertyInvalid;
+        event EventHandler<ValidationResultArgs>? PropertyInvalid;
     }
 }

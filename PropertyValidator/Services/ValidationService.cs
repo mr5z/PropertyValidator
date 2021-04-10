@@ -8,21 +8,23 @@ using PropertyValidator.Extensions;
 using PropertyValidator.Models;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PropertyValidator.Services
 {
     public class ValidationService : IValidationService
     {
-        private INotifyPropertyChanged notifiableModel;
-        private object ruleCollection;
+        private INotifyPropertyChanged? notifiableModel;
+        private object? ruleCollection;
         private bool autofill;
         private TimeSpan? delay;
-        private MethodInfo methodInfo;
-        private CancellationTokenSource cts;
+        private MethodInfo? methodInfo;
+        private CancellationTokenSource? cts;
 
-        public event EventHandler<ValidationResultArgs> PropertyInvalid;
+        public event EventHandler<ValidationResultArgs>? PropertyInvalid;
 
         public RuleCollection<TNotifiableModel> For<TNotifiableModel>(
+            [NotNull]
             TNotifiableModel notifiableModel,
             bool autofill,
             TimeSpan? delay) where TNotifiableModel : INotifyPropertyChanged
@@ -40,7 +42,9 @@ namespace PropertyValidator.Services
 
         private List<IValidationRule> GetRules()
         {
-            var returnValue = methodInfo.Invoke(ruleCollection, null);
+            EnsureEntryMethodInvoked();
+
+            var returnValue = methodInfo!.Invoke(ruleCollection, null);
             return (List<IValidationRule>)returnValue;
         }
 
@@ -101,11 +105,14 @@ namespace PropertyValidator.Services
 
             var eventArgs = new ValidationResultArgs(e.PropertyName, errorMessages);
             if (autofill)
-                eventArgs.FillErrorProperty(notifiableModel);
+            {
+                EnsureEntryMethodInvoked();
+                eventArgs.FillErrorProperty(notifiableModel!);
+            }
             PropertyInvalid?.Invoke(this, eventArgs);
         }
 
-        public List<string> GetErrorMessages<TNotifiableModel>(
+        public List<string?> GetErrorMessages<TNotifiableModel>(
             TNotifiableModel _, 
             Expression<Func<TNotifiableModel, object>> expression) 
             where TNotifiableModel : INotifyPropertyChanged
@@ -117,7 +124,7 @@ namespace PropertyValidator.Services
                 .ToList();
         }
 
-        public string GetErrorMessage<TNotifiableModel>(
+        public string? GetErrorMessage<TNotifiableModel>(
             TNotifiableModel notifiableProperty, 
             Expression<Func<TNotifiableModel, object>> expression) 
             where TNotifiableModel : INotifyPropertyChanged
@@ -135,20 +142,27 @@ namespace PropertyValidator.Services
             return ValidateImpl();
         }
 
-        public bool Validate(string propertyName)
+        public bool Validate([NotNull] string propertyName)
         {
             return ValidateImpl(propertyName);
         }
 
-        private bool ValidateImpl(string propertyName = null)
+        private bool ValidateImpl(string? propertyName = null)
         {
-            return ValidateRuleCollection(GetRules(), notifiableModel, propertyName);
+            EnsureEntryMethodInvoked();
+            return ValidateRuleCollection(GetRules(), notifiableModel!, propertyName);
+        }
+
+        private void EnsureEntryMethodInvoked()
+        {
+            if (notifiableModel == null)
+                throw new InvalidOperationException($"Please use '{nameof(For)}' before invoking this method.");
         }
 
         public static bool ValidateRuleCollection(
             List<IValidationRule> ruleCollection,
             object target,
-            string propertyName = null)
+            string? propertyName = null)
         {
             bool noErrors = true;
             foreach (var rule in ruleCollection)

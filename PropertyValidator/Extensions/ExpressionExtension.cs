@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace PropertyValidator.Extensions
@@ -17,8 +18,13 @@ namespace PropertyValidator.Extensions
 
         public static PropertyInfo GetPropertyInfo<T>(this Expression<T> expression)
         {
-            var body = expression.Body as MemberExpression;
-            return body.Member as PropertyInfo;
+            if (expression.Body is not MemberExpression body)
+                throw new InvalidOperationException($"Expression must be a {nameof(MemberExpression)}");
+
+            if (body.Member is not PropertyInfo propInfo)
+                throw new InvalidOperationException($"Expression must be a property access");
+
+            return propInfo;
         }
     }
 }

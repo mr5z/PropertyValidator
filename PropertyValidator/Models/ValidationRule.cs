@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PropertyValidator.Models
+﻿namespace PropertyValidator.Models
 {
     public abstract class ValidationRule<T> : IValidationRule
     {
-        public string PropertyName { get; set; }
+        public string? PropertyName { get; set; }
 
         public bool HasError { get; private set; }
 
@@ -17,10 +11,10 @@ namespace PropertyValidator.Models
         // TODO support async validations
         //public virtual Task<bool> IsValidAsync(T value) => Task.FromResult(IsValid(value));
 
-        public abstract bool IsValid(T value);
+        public abstract bool IsValid(T? value);
 
         public abstract string ErrorMessage { get; }
 
-        public string ErrorMessageOverride { get; set; }
+        public string? ErrorMessageOverride { get; set; }
     }
 }
