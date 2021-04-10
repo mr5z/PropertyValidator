@@ -90,6 +90,14 @@ namespace PropertyValidator.Test.ViewModels
 
         private void Submit()
         {
+            try
+            {
+                validationService.EnsurePropertiesAreValid();
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+            }
             if (!validationService.Validate())
             {
                 ShowValidationResult();

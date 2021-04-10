@@ -144,14 +144,39 @@ namespace PropertyValidator.Services
             return ValidateImpl(propertyName);
         }
 
-        private ValidationResultArgs GetValidationResultArgs(string propertyName)
+        public void EnsurePropertiesAreValid()
         {
-            var errorMessages = GetRules()
-                .Where(it => it.HasError && it.PropertyName == propertyName)
+            ValidateAllProperties(); ;
+            var resultArgs = GetValidationResultArgs();
+            var firstError = resultArgs.FirstError;
+            if (!string.IsNullOrEmpty(firstError))
+                throw new PropertyException(resultArgs);
+        }
+
+        private void ValidateAllProperties()
+        {
+            var ruleCollection = GetRules();
+            foreach (var rule in ruleCollection)
+            {
+                Validate(rule.PropertyName!);
+            }
+        }
+
+        private ValidationResultArgs GetValidationResultArgs(string? propertyName = null)
+        {
+            var enumerable = GetRules().AsEnumerable();
+
+            if (!string.IsNullOrEmpty(propertyName))
+            {
+                enumerable = enumerable.Where(it => it.PropertyName == propertyName);
+            }
+
+            var errorMessages = enumerable.Where(it => it.HasError)
                 .Select(it => new { it.PropertyName, ErrorMessage = it.Error })
                 .GroupBy(it => it.PropertyName)
                 .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
-            return new ValidationResultArgs(propertyName, errorMessages);
+
+            return new ValidationResultArgs(propertyName!, errorMessages!);
         }
 
         private bool ValidateImpl(string? propertyName = null)
@@ -177,20 +202,13 @@ namespace PropertyValidator.Services
                 if (!string.IsNullOrEmpty(propertyName) && rule.PropertyName != propertyName)
                     continue;
 
-                var property = target.GetType().GetProperty(rule.PropertyName);
+                var type = target.GetType();
+                var property = type.GetProperty(rule.PropertyName);
                 var value = property.GetValue(target, null);
                 rule.Validate(value);
                 noErrors = noErrors && !rule.HasError;
             }
             return noErrors;
-        }
-
-        public void EnsurePropertiesAreValid()
-        {
-            var resultArgs = GetValidationResultArgs(string.Empty);
-            var firstError = resultArgs.FirstError;
-            if (!string.IsNullOrEmpty(firstError))
-                throw new PropertyException(resultArgs);
         }
     }
 }
