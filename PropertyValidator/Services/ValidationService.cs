@@ -9,6 +9,7 @@ using PropertyValidator.Models;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using PropertyValidator.Exceptions;
 
 namespace PropertyValidator.Services
 {
@@ -97,13 +98,7 @@ namespace PropertyValidator.Services
 
             Validate(e.PropertyName);
 
-            var errorMessages = GetRules()
-                .Where(it => it.HasError && it.PropertyName == e.PropertyName)
-                .Select(it => new { it.PropertyName, ErrorMessage = it.Error })
-                .GroupBy(it => it.PropertyName)
-                .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
-
-            var eventArgs = new ValidationResultArgs(e.PropertyName, errorMessages);
+            var eventArgs = GetValidationResultArgs(e.PropertyName);
             if (autofill)
             {
                 EnsureEntryMethodInvoked();
@@ -112,12 +107,8 @@ namespace PropertyValidator.Services
             PropertyInvalid?.Invoke(this, eventArgs);
         }
 
-        public List<string?> GetErrorMessages<TNotifiableModel>(
-            TNotifiableModel _, 
-            Expression<Func<TNotifiableModel, object>> expression) 
-            where TNotifiableModel : INotifyPropertyChanged
+        private List<string?> GetErrorMessages(string propertyName) 
         {
-            var propertyName = expression.GetMemberName();
             return GetRules()
                 .Where(it => it.HasError && it.PropertyName == propertyName)
                 .Select(it => it.Error)
@@ -126,10 +117,16 @@ namespace PropertyValidator.Services
 
         public string? GetErrorMessage<TNotifiableModel>(
             TNotifiableModel notifiableProperty, 
-            Expression<Func<TNotifiableModel, object>> expression) 
+            Expression<Func<TNotifiableModel, object?>> expression) 
             where TNotifiableModel : INotifyPropertyChanged
         {
-            return GetErrorMessages(notifiableProperty, expression).FirstOrDefault();
+            var propertyName = expression.GetMemberName();
+            return GetErrorMessages(propertyName).FirstOrDefault();
+        }
+
+        public string? GetErrorMessage<TNotifiableModel>(string propertyName)
+        {
+            return GetErrorMessages(propertyName).FirstOrDefault();
         }
 
         public bool HasError()
@@ -145,6 +142,16 @@ namespace PropertyValidator.Services
         public bool Validate([NotNull] string propertyName)
         {
             return ValidateImpl(propertyName);
+        }
+
+        private ValidationResultArgs GetValidationResultArgs(string propertyName)
+        {
+            var errorMessages = GetRules()
+                .Where(it => it.HasError && it.PropertyName == propertyName)
+                .Select(it => new { it.PropertyName, ErrorMessage = it.Error })
+                .GroupBy(it => it.PropertyName)
+                .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
+            return new ValidationResultArgs(propertyName, errorMessages);
         }
 
         private bool ValidateImpl(string? propertyName = null)
@@ -176,6 +183,14 @@ namespace PropertyValidator.Services
                 noErrors = noErrors && !rule.HasError;
             }
             return noErrors;
+        }
+
+        public void EnsurePropertiesAreValid()
+        {
+            var resultArgs = GetValidationResultArgs(string.Empty);
+            var firstError = resultArgs.FirstError;
+            if (!string.IsNullOrEmpty(firstError))
+                throw new PropertyException(resultArgs);
         }
     }
 }

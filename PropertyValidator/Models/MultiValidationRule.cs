@@ -39,7 +39,7 @@ namespace PropertyValidator.Models
         // TODO convert to List<string>
         public override sealed string ErrorMessage => $"[{string.Join(",", ErrorsAsJsonString())}]";
 
-        private IEnumerable<string> ErrorsAsJsonString()
+        private IEnumerable<string?> ErrorsAsJsonString()
             => validationRules
                 .Where(e => e.HasError)
                 .Select(e => $"{e.PropertyName}:\"{e.ErrorMessage}\"");
