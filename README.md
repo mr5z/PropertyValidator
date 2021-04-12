@@ -67,7 +67,7 @@ public class EmailFormatRule : ValidationRule<string?>
 {
     public override string ErrorMessage => "Not a valid email format";
 
-    public override bool IsValid(strin?g value)
+    public override bool IsValid(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return false;
