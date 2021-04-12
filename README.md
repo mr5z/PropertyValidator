@@ -45,7 +45,7 @@ public interface IValidationService
     // Returns the first error message.
     string? GetErrorMessage<TNotifiableModel>(string propertyName);
 
-    // Ensure all properties are in a valid state based from the provided validation rules
+    // Ensure all properties are in a valid state based from the provided validation rules.
     // Throws PropertyException if there is an error.
     void EnsurePropertiesAreValid();
 
