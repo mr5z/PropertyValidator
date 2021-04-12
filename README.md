@@ -197,6 +197,22 @@ private void Register()
         ShowValidationResult();
         return;
     }
+    
+    // OR
+    
+    try
+    {
+        validationService.EnsurePropertiesAreValid();
+        // do the registration process
+    }
+    catch (Exception ex)
+    {
+        if (ex is PropertyException propertyException)
+        {
+            var firstError = propertyException.FirstError;
+            // Do something!
+        }
+    }
 
     ...
 }	
