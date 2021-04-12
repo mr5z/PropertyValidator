@@ -27,21 +27,33 @@ The interface is pretty simple and self-documenting:
 //  (yet with comments)
 public interface IValidationService
 {
-    // For registration
-    RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel)
-        where TNotifiableModel : INotifyPropertyChanged;
-
-    // Retrieve error messages per property
-    string GetErrorMessage<TNotifiableModel>(
+    // Registers the model for validation.
+    RuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
-        Expression<Func<TNotifiableModel, object>> expression)
+        bool autofill = false,
+        TimeSpan? delay = null)
         where TNotifiableModel : INotifyPropertyChanged;
 
-    // Manually trigger the validation
+    // Retrieve error messages per property.
+    // Returns the first error message.
+    string? GetErrorMessage<TNotifiableModel>(
+        TNotifiableModel _,
+        Expression<Func<TNotifiableModel, object?>> expression)
+        where TNotifiableModel : INotifyPropertyChanged;
+
+    // Retrieve error messages per property.
+    // Returns the first error message.
+    string? GetErrorMessage<TNotifiableModel>(string propertyName);
+
+    // Ensure all properties are in a valid state based from the provided validation rules
+    // Throws PropertyException if there is an error.
+    void EnsurePropertiesAreValid();
+
+    // Trigger manually the validation.
     bool Validate();
 
-    // Subscribe to error events (cleared/raised)
-    event EventHandler<ValidationResultArgs> PropertyInvalid;
+    // Subscribe to error events (cleared/raised).
+    event EventHandler<ValidationResultArgs>? PropertyInvalid;
 }
 ```
 
