@@ -63,11 +63,11 @@ public interface IValidationService
 
 ``` c#
 // For email address
-public class EmailFormatRule : ValidationRule<string>
+public class EmailFormatRule : ValidationRule<string?>
 {
     public override string ErrorMessage => "Not a valid email format";
 
-    public override bool IsValid(string value)
+    public override bool IsValid(strin?g value)
     {
         if (string.IsNullOrEmpty(value))
             return false;
@@ -79,18 +79,18 @@ public class EmailFormatRule : ValidationRule<string>
 }
 
 // For required field
-public class RequiredRule : ValidationRule<string>
+public class RequiredRule : ValidationRule<string?>
 {
     public override string ErrorMessage => "Izz required!";
 
-    public override bool IsValid(string value)
+    public override bool IsValid(string? value)
     {
         return !string.IsNullOrEmpty(value);
     }
 }
 
 // If you want to limit the string to a certain length
-public class LengthRule : ValidationRule<string>
+public class LengthRule : ValidationRule<string?>
 {
     public override string ErrorMessage => string.Format(Strings.MaxCharacters, max);
 
@@ -101,7 +101,7 @@ public class LengthRule : ValidationRule<string>
         this.max = max;
     }
 
-    public override bool IsValid(string value)
+    public override bool IsValid(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return true;
