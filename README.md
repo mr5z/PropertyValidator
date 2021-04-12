@@ -139,15 +139,15 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
         this.validationService = validationService;
     }
 
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string EmailAddress { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
-    public string FirstNameError { get; set; }
-    public string LastNameError { get; set; }
-    public string EmailAddressError { get; set; }
-    public string PhysicalAddressError { get; set; }
+    public string? FirstNameError { get; set; }
+    public string? LastNameError { get; set; }
+    public string? EmailAddressError { get; set; }
+    public string? PhysicalAddressError { get; set; }
 
     // You must do this only once in the initialization part of your class model.
     public void Initialize(INavigationParameters parameters)
