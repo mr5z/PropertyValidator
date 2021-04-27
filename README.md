@@ -191,7 +191,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService#Validate()`, check the return, if it's false, find the error message using `ValidationService#GetErrorMessage(...)`. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return, if it's false, find the error message using `ValidationService::GetErrorMessage(...)`. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
 
 ``` c#
 private void ShowValidationResult()
@@ -202,7 +202,8 @@ private void ShowValidationResult()
     PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
 }
 
-private void Register()
+// Using ValidationService::GetErrorMessage()
+private void Register1()
 {
     if (!validationService.Validate())
     {
@@ -210,24 +211,49 @@ private void Register()
         return;
     }
     
-    // OR
-    
+    // Proceed with the registration process.
+    ...
+}	
+
+// Using ValidationService::EnsurePropertiesAreValid()
+private void Register2()
+{
     try
     {
         validationService.EnsurePropertiesAreValid();
-        // do the registration process
+        // Proceed with the registration process.
+        ...
     }
     catch (Exception ex)
     {
         if (ex is PropertyException propertyException)
         {
             var firstError = propertyException.FirstError;
-            // Do something!
+            // Show the error to user by any means.
+            ...
         }
     }
+}
 
-    ...
-}	
+// Using ValidationService#EnsurePropertiesAreValid()
+// plus ValidationResultArgs::Fill()
+private void Register3()
+{
+    try
+    {
+        validationService.EnsurePropertiesAreValid();
+        // Proceed with the registration process.
+        ...
+    }
+    catch (Exception ex)
+    {
+        if (ex is PropertyException propertyException)
+        {
+            var validationResult = propertyException.ValidationResultArgs;
+            validationResult.FillErrorProperty(this);
+        }
+    }
+}
 ```
 
 ### Autofill
