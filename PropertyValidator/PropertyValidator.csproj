@@ -12,9 +12,9 @@
     <PackageProjectUrl>https://github.com/mr5z/PropertyValidator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mr5z/PropertyValidator</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <FileVersion>1.0.6.6</FileVersion>
-    <AssemblyVersion>1.0.6.6</AssemblyVersion>
-    <Version>1.0.6.6</Version>
+    <FileVersion>1.0.6.7</FileVersion>
+    <AssemblyVersion>1.0.6.7</AssemblyVersion>
+    <Version>1.0.6.7</Version>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 

@@ -24,7 +24,7 @@ namespace PropertyValidator.Models
             .Values
             .FirstOrDefault(errors => errors.Any(message => !string.IsNullOrEmpty(message)));
 
-        public string? FirstError => ErrorMessages
+        public string? FirstError => ErrorMessages?
             .FirstOrDefault();
 
         public void FillErrorProperty<T>(T notifiableModel) where T : INotifyPropertyChanged
