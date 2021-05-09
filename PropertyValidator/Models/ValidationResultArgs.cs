@@ -10,13 +10,13 @@ namespace PropertyValidator.Models
     {
         private const string KnownErrorPropertyPattern = "Error";
 
-        public ValidationResultArgs(string propertyName, IDictionary<string, IEnumerable<string?>> errorDictionary)
+        public ValidationResultArgs(string? propertyName, IDictionary<string, IEnumerable<string?>> errorDictionary)
         {
             PropertyName = propertyName;
             ErrorDictionary = errorDictionary;
         }
 
-        public string PropertyName { get; }
+        public string? PropertyName { get; }
 
         public IEnumerable<string?> ErrorMessages => ErrorDictionary.Values.FirstOrDefault();
 
@@ -26,11 +26,26 @@ namespace PropertyValidator.Models
 
         public void FillErrorProperty<T>(T notifiableModel) where T : INotifyPropertyChanged
         {
-            var errorProperty = PropertyName + KnownErrorPropertyPattern;
+            if (PropertyName == null)
+            {
+                foreach (var entry in ErrorDictionary)
+                {
+                    FillError(notifiableModel, entry.Key, entry.Value.FirstOrDefault());
+                }
+            }
+            else
+            {
+                FillError(notifiableModel, PropertyName, FirstError);
+            }
+        }
+
+        private void FillError<T>(T notifiableModel, string propertyName, string? errorMessage) where T : INotifyPropertyChanged
+        {
+            var errorProperty = propertyName + KnownErrorPropertyPattern;
             var propInfo = notifiableModel.GetType().GetProperty(errorProperty);
             if (propInfo == null)
                 throw new TargetException($"Property '{errorProperty}' not found in target '{notifiableModel.GetType().Name}'");
-            propInfo.SetValue(notifiableModel, FirstError);
+            propInfo.SetValue(notifiableModel, errorMessage);
         }
     }
 }

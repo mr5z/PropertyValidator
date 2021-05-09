@@ -171,12 +171,12 @@ namespace PropertyValidator.Services
                 enumerable = enumerable.Where(it => it.PropertyName == propertyName);
             }
 
-            var errorMessages = enumerable.Where(it => it.HasError)
-                .Select(it => new { it.PropertyName, ErrorMessage = it.Error })
+            var errorMessages = enumerable
+                .Select(it => new { it.PropertyName, ErrorMessage = it.HasError ? it.Error : null })
                 .GroupBy(it => it.PropertyName)
                 .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
 
-            return new ValidationResultArgs(propertyName!, errorMessages!);
+            return new ValidationResultArgs(propertyName, errorMessages!);
         }
 
         private bool ValidateImpl(string? propertyName = null)
