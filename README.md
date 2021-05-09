@@ -289,7 +289,3 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
 ## Support
 
 Feel free to contribute if you find some issues or you have more ideas to add :)
-
-ETH:
-- 0x11bafdeCfb4Aa03D029ef10c9cE8DCB41B83aFb1
-- 0x514d282f93b3dab68fc69edc2ed8fac8607fe6f1
