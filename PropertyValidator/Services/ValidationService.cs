@@ -196,17 +196,18 @@ namespace PropertyValidator.Services
             object target,
             string? propertyName = null)
         {
-            bool noErrors = true;
-            foreach (var rule in ruleCollection)
-            {
-                if (!string.IsNullOrEmpty(propertyName) && rule.PropertyName != propertyName)
-                    continue;
+            if (string.IsNullOrEmpty(propertyName))
+                return true;
 
+            bool noErrors = true;
+            var filteredCollection = ruleCollection.Where(it => it.PropertyName == propertyName);
+            foreach (var rule in filteredCollection)
+            {
                 var type = target.GetType();
                 var property = type.GetProperty(rule.PropertyName);
                 var value = property.GetValue(target, null);
-                rule.Validate(value);
-                noErrors = noErrors && !rule.HasError;
+                var isValid = rule.Validate(value);
+                noErrors = noErrors && isValid;
             }
             return noErrors;
         }

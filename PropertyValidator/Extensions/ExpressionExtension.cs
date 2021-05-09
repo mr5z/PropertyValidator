@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace PropertyValidator.Extensions
 {
-    public static class ExpressionExtension
+    static class ExpressionExtension
     {
         public static string GetMemberName<T>(this Expression<T> expression)
         {

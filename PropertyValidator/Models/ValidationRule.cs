@@ -6,7 +6,11 @@
 
         public bool HasError { get; private set; }
 
-        public bool Validate(object value) => (HasError = !IsValid((T)value));
+        public bool Validate(object value)
+        {
+            HasError = !IsValid((T)value);
+            return !HasError;
+        }
 
         // TODO support async validations
         //public virtual Task<bool> IsValidAsync(T value) => Task.FromResult(IsValid(value));

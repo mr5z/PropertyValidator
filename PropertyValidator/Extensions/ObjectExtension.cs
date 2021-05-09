@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace PropertyValidator.Extensions
 {
-    public static class ObjectExtension
+    static class ObjectExtension
 	{
 		public static T ToObject<T>(this IDictionary<string, object> source)
 			where T : class, new() => ToObject<T, object>(source);

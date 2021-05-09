@@ -18,11 +18,14 @@ namespace PropertyValidator.Models
 
         public string? PropertyName { get; }
 
-        public IEnumerable<string?> ErrorMessages => ErrorDictionary.Values.FirstOrDefault();
-
         public IDictionary<string, IEnumerable<string?>> ErrorDictionary { get; }
 
-        public string? FirstError => ErrorDictionary.Values.FirstOrDefault()?.FirstOrDefault();
+        public IEnumerable<string?> ErrorMessages => ErrorDictionary
+            .Values
+            .FirstOrDefault(errors => errors.Any(message => !string.IsNullOrEmpty(message)));
+
+        public string? FirstError => ErrorMessages
+            .FirstOrDefault();
 
         public void FillErrorProperty<T>(T notifiableModel) where T : INotifyPropertyChanged
         {

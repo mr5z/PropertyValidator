@@ -11,7 +11,7 @@ namespace PropertyValidator.Models
 {
     public class RuleCollection<TModel>
     {
-        private readonly List<IValidationRule> validationRuleList = new List<IValidationRule>();
+        private readonly List<IValidationRule> validationRuleList = new();
         private readonly object? target;
 
         public RuleCollection(object? target)

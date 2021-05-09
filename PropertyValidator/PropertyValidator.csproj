@@ -7,13 +7,14 @@
     <Authors>Mark Laureta</Authors>
     <Company>Nkraft</Company>
     <Description>A simple library to help you validate properties of class that implements INotifyPropertyChanged.</Description>
-    <PackageReleaseNotes>Fix property notification when the error message has been cleared for ValidationResultArgs::FillErrorProperty</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fix property notification when the error message has been cleared for ValidationResultArgs::FillErrorProperty
+- Remove redundant check and bug fixes</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/mr5z/PropertyValidator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mr5z/PropertyValidator</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <FileVersion>1.0.6.5</FileVersion>
-    <AssemblyVersion>1.0.6.5</AssemblyVersion>
-    <Version>1.0.6.5</Version>
+    <FileVersion>1.0.6.6</FileVersion>
+    <AssemblyVersion>1.0.6.6</AssemblyVersion>
+    <Version>1.0.6.6</Version>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 

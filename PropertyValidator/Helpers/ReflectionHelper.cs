@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace PropertyValidator.Helpers
 {
-    public static class ReflectionHelper
+    static class ReflectionHelper
     {
         public static FieldInfo? GetField(Type fromType, string fieldName)
         {
