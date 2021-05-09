@@ -27,21 +27,33 @@ The interface is pretty simple and self-documenting:
 //  (yet with comments)
 public interface IValidationService
 {
-    // For registration
-    RuleCollection<TNotifiableModel> For<TNotifiableModel>(TNotifiableModel notifiableModel)
-        where TNotifiableModel : INotifyPropertyChanged;
-
-    // Retrieve error messages per property
-    string GetErrorMessage<TNotifiableModel>(
+    // Registers the model for validation.
+    RuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
-        Expression<Func<TNotifiableModel, object>> expression)
+        bool autofill = false,
+        TimeSpan? delay = null)
         where TNotifiableModel : INotifyPropertyChanged;
 
-    // Manually trigger the validation
+    // Retrieve error messages per property.
+    // Returns the first error message.
+    string? GetErrorMessage<TNotifiableModel>(
+        TNotifiableModel _,
+        Expression<Func<TNotifiableModel, object?>> expression)
+        where TNotifiableModel : INotifyPropertyChanged;
+
+    // Retrieve error messages per property.
+    // Returns the first error message.
+    string? GetErrorMessage<TNotifiableModel>(string propertyName);
+
+    // Ensure all properties are in a valid state based from the provided validation rules.
+    // Throws PropertyException if there is an error.
+    void EnsurePropertiesAreValid();
+
+    // Trigger manually the validation.
     bool Validate();
 
-    // Subscribe to error events (cleared/raised)
-    event EventHandler<ValidationResultArgs> PropertyInvalid;
+    // Subscribe to error events (cleared/raised).
+    event EventHandler<ValidationResultArgs>? PropertyInvalid;
 }
 ```
 
@@ -51,11 +63,11 @@ public interface IValidationService
 
 ``` c#
 // For email address
-public class EmailFormatRule : ValidationRule<string>
+public class EmailFormatRule : ValidationRule<string?>
 {
     public override string ErrorMessage => "Not a valid email format";
 
-    public override bool IsValid(string value)
+    public override bool IsValid(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return false;
@@ -67,18 +79,18 @@ public class EmailFormatRule : ValidationRule<string>
 }
 
 // For required field
-public class RequiredRule : ValidationRule<string>
+public class RequiredRule : ValidationRule<string?>
 {
     public override string ErrorMessage => "Izz required!";
 
-    public override bool IsValid(string value)
+    public override bool IsValid(string? value)
     {
         return !string.IsNullOrEmpty(value);
     }
 }
 
 // If you want to limit the string to a certain length
-public class LengthRule : ValidationRule<string>
+public class LengthRule : ValidationRule<string?>
 {
     public override string ErrorMessage => string.Format(Strings.MaxCharacters, max);
 
@@ -89,7 +101,7 @@ public class LengthRule : ValidationRule<string>
         this.max = max;
     }
 
-    public override bool IsValid(string value)
+    public override bool IsValid(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return true;
@@ -127,15 +139,15 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
         this.validationService = validationService;
     }
 
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string EmailAddress { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
-    public string FirstNameError { get; set; }
-    public string LastNameError { get; set; }
-    public string EmailAddressError { get; set; }
-    public string PhysicalAddressError { get; set; }
+    public string? FirstNameError { get; set; }
+    public string? LastNameError { get; set; }
+    public string? EmailAddressError { get; set; }
+    public string? PhysicalAddressError { get; set; }
 
     // You must do this only once in the initialization part of your class model.
     public void Initialize(INavigationParameters parameters)
@@ -179,7 +191,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService#Validate()`, check the return, if it's false, find the error message using `ValidationService#GetErrorMessage(...)`
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return, if it's false, find the error message using `ValidationService::GetErrorMessage()`. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
 
 ``` c#
 private void ShowValidationResult()
@@ -190,16 +202,58 @@ private void ShowValidationResult()
     PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
 }
 
-private void Register()
+// Using ValidationService::GetErrorMessage()
+private void Register1()
 {
     if (!validationService.Validate())
     {
         ShowValidationResult();
         return;
     }
-
+    
+    // Proceed with the registration process.
     ...
 }	
+
+// Using ValidationService::EnsurePropertiesAreValid()
+private void Register2()
+{
+    try
+    {
+        validationService.EnsurePropertiesAreValid();
+        // Proceed with the registration process.
+        ...
+    }
+    catch (Exception ex)
+    {
+        if (ex is PropertyException propertyException)
+        {
+            var firstError = propertyException.FirstError;
+            // Show the error to user by any means.
+            ...
+        }
+    }
+}
+
+// Using ValidationService#EnsurePropertiesAreValid()
+// plus ValidationResultArgs::Fill()
+private void Register3()
+{
+    try
+    {
+        validationService.EnsurePropertiesAreValid();
+        // Proceed with the registration process.
+        ...
+    }
+    catch (Exception ex)
+    {
+        if (ex is PropertyException propertyException)
+        {
+            var validationResult = propertyException.ValidationResultArgs;
+            validationResult.FillErrorProperty(this);
+        }
+    }
+}
 ```
 
 ### Autofill
