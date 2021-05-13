@@ -15,7 +15,7 @@ namespace PropertyValidator.Services
         /// <param name="autofill">If true, it will automatically fills the error properties</param>
         /// <param name="delay">Delays the fill up of error properties</param>
         /// <returns>RuleCollection so that it can be chained</returns>
-        RuleCollection<TNotifiableModel> For<TNotifiableModel>(
+        IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
             TNotifiableModel notifiableModel,
             bool autofill = false,
             TimeSpan? delay = null)

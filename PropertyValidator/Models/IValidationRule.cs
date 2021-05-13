@@ -4,7 +4,7 @@
     {
         string? PropertyName { get; set; }
         bool HasError { get; }
-        bool Validate(object value);
+        bool Validate(object? value);
         string? ErrorMessage { get; }
         string? ErrorMessageOverride { get; set; }
         string? Error => ErrorMessageOverride ?? ErrorMessage;

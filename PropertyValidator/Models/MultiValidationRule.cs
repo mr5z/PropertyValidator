@@ -7,7 +7,7 @@ namespace PropertyValidator.Models
 {
     public abstract class MultiValidationRule<T> : ValidationRule<T>
     {
-        private List<IValidationRule>? validationRules;
+        private IReadOnlyCollection<IValidationRule>? validationRules;
 
         protected abstract RuleCollection<T> ConfigureRules(RuleCollection<T> ruleCollection);
 

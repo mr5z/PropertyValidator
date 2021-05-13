@@ -1,4 +1,5 @@
 ﻿using CrossUtility.Extensions;
+using ObservableProperty.Services;
 using PropertyValidator.Helpers;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,17 @@ using System.Linq.Expressions;
 
 namespace PropertyValidator.Models
 {
-    public class RuleCollection<TModel> : IRuleCollection<TModel>
+    public class NewRuleCollection<TModel> : IRuleCollection<TModel> where TModel : notnull
     {
-        private readonly List<IValidationRule> validationRuleList = new();
-        private readonly object? target;
+        private readonly object target;
+        private readonly ActionCollection<TModel> actionCollection;
+        private readonly Dictionary<string, IEnumerable<IValidationRule>> validationRules = new();
 
-        public RuleCollection(object? target)
-            => this.target = target;
+        public NewRuleCollection(ActionCollection<TModel> actionCollection, object target)
+        {
+            this.actionCollection = actionCollection;
+            this.target = target;
+        }
 
         private void TargetInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -31,14 +36,13 @@ namespace PropertyValidator.Models
             eventDelegate.DynamicInvoke(target, eventArgs);
         }
 
-        public IRuleCollection<TModel> AddRule<TProperty>
-            (Expression<Func<TModel, TProperty>> expression,
+        public IRuleCollection<TModel> AddRule<TProperty>(
+            Expression<Func<TModel, TProperty>> expression,
             params ValidationRule<TProperty>[] rules)
             => AddRule(expression, null, rules);
 
         public IRuleCollection<TModel> AddRule<TProperty>(
-            [NotNull]
-            string propertyName,
+            [NotNull] string propertyName,
             params ValidationRule<TProperty>[] rules)
             => AddRule(propertyName, null, rules);
 
@@ -60,21 +64,27 @@ namespace PropertyValidator.Models
         }
 
         public IRuleCollection<TModel> AddRule<TProperty>(
-            [NotNull]
-            string propertyName, 
-            string? errorMessageOverride, 
+            [NotNull] string propertyName,
+            string? errorMessageOverride,
             params ValidationRule<TProperty>[] rules)
         {
-            foreach (var rule in rules)
-            {
-                rule.PropertyName = propertyName;
-                rule.ErrorMessageOverride = errorMessageOverride;
-                validationRuleList.Add(rule);
-            }
+            validationRules[propertyName] = rules;
+            actionCollection.When<TProperty>(propertyName, it => AA(propertyName, it));
             return this;
         }
 
+        private void AA<TProperty>(string propertyName, TProperty property)
+        {
+            if (validationRules.TryGetValue(propertyName, out var ruleList))
+                throw new InvalidOperationException($"'{propertyName}' is not registered to validation rules.");
+
+            foreach (var rule in ruleList)
+            {
+                var isValid = rule.Validate(property);
+            }
+        }
+
         public IReadOnlyCollection<IValidationRule> GetRules()
-            => validationRuleList;
+            => validationRules.Values.SelectMany(it => it).ToList();
     }
 }

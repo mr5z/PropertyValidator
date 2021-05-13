@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using CrossUtility.Extensions;
+using PropertyValidator.Exceptions;
+using PropertyValidator.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using System;
-using System.ComponentModel;
 using System.Reflection;
-using PropertyValidator.Extensions;
-using PropertyValidator.Models;
-using System.Threading.Tasks;
 using System.Threading;
-using System.Diagnostics.CodeAnalysis;
-using PropertyValidator.Exceptions;
+using System.Threading.Tasks;
 
 namespace PropertyValidator.Services
 {
@@ -24,7 +24,7 @@ namespace PropertyValidator.Services
 
         public event EventHandler<ValidationResultArgs>? PropertyInvalid;
 
-        public RuleCollection<TNotifiableModel> For<TNotifiableModel>(
+        public IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
             [NotNull]
             TNotifiableModel notifiableModel,
             bool autofill,
@@ -192,7 +192,7 @@ namespace PropertyValidator.Services
         }
 
         public static bool ValidateRuleCollection(
-            List<IValidationRule> ruleCollection,
+            IEnumerable<IValidationRule> ruleCollection,
             object target,
             string? propertyName = null)
         {
@@ -200,10 +200,10 @@ namespace PropertyValidator.Services
                 return true;
 
             bool noErrors = true;
+            var type = target.GetType();
             var filteredCollection = ruleCollection.Where(it => it.PropertyName == propertyName);
             foreach (var rule in filteredCollection)
             {
-                var type = target.GetType();
                 var property = type.GetProperty(rule.PropertyName);
                 var value = property.GetValue(target, null);
                 var isValid = rule.Validate(value);
