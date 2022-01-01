@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="PropertyValidator.Test.Pages.ItemsPage">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Submit" Command="{Binding SubmitCommand}" />
+    </ContentPage.ToolbarItems>
+    <ScrollView
+        VerticalOptions="FillAndExpand">
+        <StackLayout
+            Padding="4"
+            HeightRequest="2000">
+            <Entry
+                Text="{Binding FirstName}"
+                Placeholder="First name" />
+            <Label
+                Text="{Binding FirstNameError}"
+                TextColor="Red"
+                FontSize="Small" />
+            <Entry
+                Text="{Binding LastName}"
+                Placeholder="Last name" />
+            <Label
+                Text="{Binding LastNameError}"
+                TextColor="Red"
+                FontSize="Small" />
+            <Entry
+                Text="{Binding EmailAddress}"
+                Keyboard="Email"
+                Placeholder="Email address" />
+            <Label
+                Text="{Binding EmailAddressError}"
+                TextColor="Red"
+                FontSize="Small" />
+            <StackLayout
+                Padding="6">
+                <Label
+                    Margin="6"
+                    Text="Address"
+                    FontSize="Caption"/>
+                <Entry
+                    Text="{Binding PhysicalAddress.PostalCode}"
+                    Keyboard="Numeric"
+                    Placeholder="Postal code" />
+                <Entry
+                    Text="{Binding PhysicalAddress.StreetAddress}"
+                    Placeholder="Street address" />
+                <Entry
+                    Text="{Binding PhysicalAddress.City}"
+                    Placeholder="City" />
+                <Entry
+                    Text="{Binding PhysicalAddress.CountryIsoCode}"
+                    Placeholder="2 letter ISO country code" />
+                <Label
+                    Text="{Binding PhysicalAddressError}"
+                    TextColor="Red"
+                    FontSize="Small" />
+            </StackLayout>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
