@@ -27,7 +27,6 @@ namespace PropertyValidator.Models
             string? errorMessageOverride,
             params ValidationRule<TProperty>[] rules);
 
-        IReadOnlyCollection<IValidationRule> GetRules();
-        IReadOnlyDictionary<string, IEnumerable<IValidationRule>> GetNewRules();
+        IReadOnlyDictionary<string, IEnumerable<IValidationRule>> GetRules();
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PropertyValidator.Test.Models
+﻿namespace PropertyValidator.Test.Models
 {
     public class Item
     {

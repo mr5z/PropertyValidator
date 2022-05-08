@@ -41,10 +41,10 @@ namespace PropertyValidator.Models
                 return;
 
             var eventName = nameof(INotifyPropertyChanged.PropertyChanged);
-            var field = ReflectionHelper.GetField(target.GetType(), eventName);
-            var eventDelegate = (MulticastDelegate)field!.GetValue(target);
+            var field = ReflectionHelper.GetField(this.target.GetType(), eventName);
+            var eventDelegate = (MulticastDelegate)field!.GetValue(this.target);
             var properties = this.target.GetType().GetProperties();
-            var propInfo = properties.FirstOrDefault(e => e.GetValue(target) == sender);
+            var propInfo = properties.First(e => e.GetValue(this.target) == sender);
             var eventArgs = new PropertyChangedEventArgs(propInfo.Name);
             eventDelegate.DynamicInvoke(this.target, eventArgs);
         }
@@ -72,10 +72,13 @@ namespace PropertyValidator.Models
             var propInfo = expression.GetPropertyInfo();
             var result = AddRule(propertyName, errorMessageOverride, rules);
             var value = propInfo.GetValue(this.target, null);
-            if (value is INotifyPropertyChanged notifyPropertyChanged)
+            if (value is INotifyPropertyChanged notifiableObject)
             {
-                notifyPropertyChanged.PropertyChanged -= TargetInstance_PropertyChanged;
-                notifyPropertyChanged.PropertyChanged += TargetInstance_PropertyChanged;
+                notifiableObject.PropertyChanged -= TargetInstance_PropertyChanged;
+                notifiableObject.PropertyChanged += TargetInstance_PropertyChanged;
+                notifiableObject.PropertyChanged += (sender, e) => {
+
+                };
             }
             return result;
         }
@@ -93,19 +96,13 @@ namespace PropertyValidator.Models
         {
             Array.ForEach(rules, rule => rule.PropertyName = propertyName);
             this.validationRules[propertyName] = rules;
-            this.actionCollection.When<TProperty>(propertyName, it =>
-            {
+            this.actionCollection.When<TProperty>(propertyName, it => {
                 var eventArgs = new PropertyChangedValidationEventArgs(propertyName, it);
                 ValidationResult?.Invoke(this, eventArgs);
             });
         }
 
-        public IReadOnlyCollection<IValidationRule> GetRules()
-        {
-            return this.validationRules.Values.SelectMany(it => it).ToList();
-        }
-
-        public IReadOnlyDictionary<string, IEnumerable<IValidationRule>> GetNewRules()
+        public IReadOnlyDictionary<string, IEnumerable<IValidationRule>> GetRules()
         {
             return this.validationRules;
         }

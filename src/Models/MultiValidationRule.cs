@@ -1,4 +1,5 @@
-﻿using PropertyValidator.Services;
+﻿using ObservableProperty.Services;
+using PropertyValidator.Services;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace PropertyValidator.Models
 {
     public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnull
     {
-        private IReadOnlyCollection<IValidationRule>? validationRules;
+        private IReadOnlyDictionary<string, IEnumerable<IValidationRule>>? validationRules;
 
         protected abstract IRuleCollection<T> ConfigureRules(IRuleCollection<T> ruleCollection);
 
@@ -19,30 +20,50 @@ namespace PropertyValidator.Models
                 return false;
             }
 
-            if (validationRules == null)
+            void Target_PropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var ruleCollection = new RuleCollection<T>(value);
-                validationRules = ConfigureRules(ruleCollection).GetRules();
+                var dictionaryRules = GetValidationRules();
+                var listRules = dictionaryRules.Values.SelectMany(it => it);
+                var resultArgs = NewValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
+                var isValid = resultArgs.ErrorMessages?.Any() != true;
+                if (!isValid)
+                {
+                    var inpc = sender as INotifyPropertyChanged;
+                    //resultArgs.FillErrorProperty(inpc!);
+                }
+            }
+
+            if (this.validationRules == null)
+            {
+                var actionCollection = new ActionCollection<T>();
+                var ruleCollection = new NewRuleCollection<T>(actionCollection, value);
+                this.validationRules = ConfigureRules(ruleCollection).GetRules();
                 if (value is INotifyPropertyChanged target)
                 {
                     target.PropertyChanged -= Target_PropertyChanged;
                     target.PropertyChanged += Target_PropertyChanged;
                 }
             }
-            return NewValidationService.ValidateRuleCollection(validationRules, value);
+
+            return NewValidationService.ValidateRuleCollection(
+                GetValidationRules(),
+                value
+            );
         }
 
-        private void Target_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private IDictionary<string, IEnumerable<IValidationRule>> GetValidationRules()
         {
-            ValidationService.ValidateRuleCollection(validationRules!, sender);
+            return this.validationRules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         // TODO convert to List<string>
-        public override sealed string ErrorMessage => $"[{string.Join(",", ErrorsAsJsonString())}]";
+        public sealed override string ErrorMessage => $"{{{string.Join(",", ErrorsAsJsonString())}}}";
 
         private IEnumerable<string?> ErrorsAsJsonString()
-            => validationRules
-                .Where(e => e.HasError)
+        {
+            return this.validationRules
+                .SelectMany(it => it.Value)
                 .Select(e => $"{e.PropertyName}:\"{e.ErrorMessage}\"");
+        }
     }
 }

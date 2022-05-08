@@ -1,15 +1,13 @@
-﻿using System;
-
+﻿
 using Android.App;
 using Android.Content.PM;
+using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using Android.Widget;
-using Android.OS;
+using Prism;
+using Prism.Ioc;
 using PropertyValidator.Test.Droid.Services;
 using PropertyValidator.Test.Services;
-using Prism.Ioc;
-using Prism;
 
 namespace PropertyValidator.Test.Droid
 {

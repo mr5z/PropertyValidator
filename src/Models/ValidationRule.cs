@@ -4,12 +4,9 @@
     {
         public string? PropertyName { get; set; }
 
-        public bool HasError { get; private set; }
-
         public bool Validate(object? value)
         {
-            HasError = !IsValid(value == null ? default : (T)value);
-            return !HasError;
+            return IsValid(value == null ? default : (T)value);
         }
 
         // TODO support async validations

@@ -20,7 +20,7 @@ namespace PropertyValidator.Models
 
         public IDictionary<string, IEnumerable<string?>> ErrorDictionary { get; }
 
-        public IEnumerable<string?> ErrorMessages => ErrorDictionary
+        public IEnumerable<string?>? ErrorMessages => ErrorDictionary
             .Values
             .FirstOrDefault(errors => errors.Any(message => !string.IsNullOrEmpty(message)));
 
@@ -29,16 +29,15 @@ namespace PropertyValidator.Models
 
         public void FillErrorProperty<T>(T notifiableModel) where T : INotifyPropertyChanged
         {
-            if (PropertyName == null)
-            {
-                foreach (var entry in ErrorDictionary)
-                {
-                    FillError(notifiableModel, entry.Key, entry.Value.FirstOrDefault());
-                }
-            }
-            else
+            if (PropertyName != null)
             {
                 FillError(notifiableModel, PropertyName, FirstError);
+                return;
+            }
+
+            foreach (var (key, value) in ErrorDictionary)
+            {
+                FillError(notifiableModel, key, value.FirstOrDefault());
             }
         }
 

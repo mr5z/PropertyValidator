@@ -2,7 +2,6 @@
 using Prism.Ioc;
 using PropertyValidator.Test.Extensions;
 using System.Threading.Tasks;
-using Xamarin.Forms.Xaml;
 
 namespace PropertyValidator.Test
 {

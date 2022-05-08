@@ -45,17 +45,17 @@ namespace PropertyValidator.Services
         private IRuleCollection<TNotifiableModel> BuildRuleCollection<TNotifiableModel>(TNotifiableModel model)
             where TNotifiableModel : INotifyPropertyChanged
         {
-            var observablePropertyChanged = new ObservablePropertyChanged();
-            var actionCollection = observablePropertyChanged.Observe(model);
-            var ruleCollection = new NewRuleCollection<TNotifiableModel>(actionCollection, model);
+            var observable = new ObservablePropertyChanged();
+            var action = observable.Observe(model);
+            var collection = new NewRuleCollection<TNotifiableModel>(action, model);
 
             var type = typeof(NewRuleCollection<TNotifiableModel>);
-            this.ruleCollection = ruleCollection;
-            this.methodInfo = type.GetMethod(nameof(NewRuleCollection<INotifyPropertyChanged>.GetNewRules));
+            this.ruleCollection = collection;
+            this.methodInfo = type.GetMethod(nameof(NewRuleCollection<INotifyPropertyChanged>.GetRules));
 
-            ruleCollection.ValidationResult += (sender, e) => ValidateByProperty(e.Name, e.Value).FireAndForget();
+            collection.ValidationResult += (sender, e) => ValidateByProperty(e.Name, e.Value).FireAndForget();
 
-            return ruleCollection;
+            return collection;
         }
 
         private async Task ValidateByProperty<TValue>(string propertyName, TValue? value)
@@ -79,7 +79,7 @@ namespace PropertyValidator.Services
             PropertyInvalid?.Invoke(this, resultArgs);
         }
 
-        private static ValidationResultArgs GetValidationResultArgs(
+        public static ValidationResultArgs GetValidationResultArgs(
             string propertyName,
             object? propertyValue,
             IEnumerable<IValidationRule> validatedRules)
@@ -88,8 +88,7 @@ namespace PropertyValidator.Services
                 .Where(it => !it.Validate(propertyValue))
                 .Select(it => it.Error);
 
-            var errorDictionary = new Dictionary<string, IEnumerable<string?>>
-            {
+            var errorDictionary = new Dictionary<string, IEnumerable<string?>> {
                 [propertyName] = errorMessages
             };
 
@@ -102,6 +101,7 @@ namespace PropertyValidator.Services
         {
             var type = target.GetType();
             var errorDictionary = new Dictionary<string, IEnumerable<string?>>();
+
             foreach (var entry in validationRules)
             {
                 var (propertyName, rules) = entry;
@@ -110,22 +110,20 @@ namespace PropertyValidator.Services
 
                 foreach (var rule in rules)
                 {
-                    var isValid = rule.Validate(value);
-                    if (!isValid)
+                    if (rule.Validate(value))
+                        continue;
+
+                    errorDictionary.TryGetValue(propertyName, out var oldList);
+                    var errorList = new List<string?>(oldList ?? Enumerable.Empty<string?>())
                     {
-                        errorDictionary.TryGetValue(propertyName, out var oldList);
-                        var errorList = new List<string?>(oldList ?? Enumerable.Empty<string?>())
-                        {
-                            rule.ErrorMessage
-                        };
-                        errorDictionary[propertyName] = errorList;
-                    }
+                        rule.ErrorMessage
+                    };
+                    errorDictionary[propertyName] = errorList;
                 }
             }
 
             return new ValidationResultArgs(null, errorDictionary);
         }
-
 
         private async Task<bool> ShouldCancel()
         {
@@ -193,7 +191,7 @@ namespace PropertyValidator.Services
             object target)
         {
             var resultArgs = GetValidationResultArgs(target, ruleCollection);
-            return resultArgs.ErrorMessages.Any();
+            return resultArgs.ErrorMessages?.Any() != true;
         }
     }
 }

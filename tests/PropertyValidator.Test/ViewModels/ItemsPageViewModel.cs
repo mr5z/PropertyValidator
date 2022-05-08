@@ -1,13 +1,13 @@
-﻿using PropertyValidator.Test.Models;
+﻿using Prism.Commands;
 using Prism.Navigation;
-using PropertyValidator.Services;
-using PropertyValidator.Test.Validation;
-using PropertyValidator.Models;
-using PropertyValidator.Test.Helpers;
-using Prism.Commands;
-using PropertyValidator.Test.Services;
-using System;
 using PropertyValidator.Exceptions;
+using PropertyValidator.Models;
+using PropertyValidator.Services;
+using PropertyValidator.Test.Helpers;
+using PropertyValidator.Test.Models;
+using PropertyValidator.Test.Services;
+using PropertyValidator.Test.Validation;
+using System;
 
 namespace PropertyValidator.Test.ViewModels
 {
@@ -44,7 +44,7 @@ namespace PropertyValidator.Test.ViewModels
 
         public void Initialize(INavigationParameters parameters)
         {
-            validationService.For(this, 
+            validationService.For(this,
                 autofill: true,
                 delay: TimeSpan.FromSeconds(0.7))
                 .AddRule(e => e.FirstName, new RequiredRule(), new MinLengthRule(2))

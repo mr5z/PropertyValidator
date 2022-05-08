@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PropertyValidator.Test.Helpers
+﻿namespace PropertyValidator.Test.Helpers
 {
     public static class Debug
     {
