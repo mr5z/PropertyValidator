@@ -22,26 +22,6 @@ namespace PropertyValidator.Services
             where TNotifiableModel : INotifyPropertyChanged;
 
         /// <summary>
-        /// Retrieve error messages per property
-        /// </summary>
-        /// <typeparam name="TNotifiableModel"></typeparam>
-        /// <param name="_">Unused</param>
-        /// <param name="expression">Expression to extract the property name from the target class</param>
-        /// <returns>The first error message</returns>
-        string? GetErrorMessage<TNotifiableModel>(
-            TNotifiableModel _,
-            Expression<Func<TNotifiableModel, object?>> expression)
-            where TNotifiableModel : INotifyPropertyChanged;
-
-        /// <summary>
-        /// Retrieve error messages per property
-        /// </summary>
-        /// <typeparam name="TNotifiableModel"></typeparam>
-        /// <param name="propertyName">The name of the property the exist within the registered notifiable model</param>
-        /// <returns>The first error message</returns>
-        string? GetErrorMessage<TNotifiableModel>(string propertyName);
-
-        /// <summary>
         /// Ensure all properties are in a valid state based from the provided validation rules
         /// </summary>
         /// <throws>PropertyException if there is an error</throws>

@@ -13,13 +13,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prism.DryIoc.Forms" Version="8.0.0.1850-pre" />
-    <PackageReference Include="PropertyChanged.Fody" Version="3.2.9" />
-    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1364" />  
-    <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
+    <PackageReference Include="Prism.DryIoc.Forms" Version="8.1.97" />
+    <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2612" />  
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\XamarinUtility\src\XamarinUtility.csproj" />
     <ProjectReference Include="..\..\src\PropertyValidator.csproj" />
   </ItemGroup>
 

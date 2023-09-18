@@ -6,7 +6,7 @@
 
         public bool Validate(object? value)
         {
-            return IsValid(value == null ? default : (T)value);
+            return IsValid((T?)value);
         }
 
         // TODO support async validations

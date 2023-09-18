@@ -28,7 +28,7 @@ namespace PropertyValidator.Test
 
         private static void RegisterServices(IContainerRegistry registry)
         {
-            registry.Register<IValidationService, NewValidationService>();
+            registry.Register<IValidationService, ValidationService>();
         }
 
         private static void RegisterMappings()

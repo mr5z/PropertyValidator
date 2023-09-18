@@ -8,6 +8,8 @@ using PropertyValidator.Test.Models;
 using PropertyValidator.Test.Services;
 using PropertyValidator.Test.Validation;
 using System;
+using System.Windows.Input;
+using XamarinUtility.Commands;
 
 namespace PropertyValidator.Test.ViewModels
 {
@@ -24,7 +26,7 @@ namespace PropertyValidator.Test.ViewModels
             this.validationService = validationService;
             this.toastService = toastService;
 
-            SubmitCommand = new DelegateCommand(Submit);
+            SubmitCommand = new AdaptiveCommand(Submit);
         }
 
         public string? FirstName { get; set; }
@@ -35,7 +37,7 @@ namespace PropertyValidator.Test.ViewModels
         public string? StreetAddress { get; set; }
         public string? City { get; set; }
         public string? CountryIsoCode { get; set; }
-        public DelegateCommand SubmitCommand { get; set; }
+        public ICommand SubmitCommand { get; set; }
 
         public string? FirstNameError { get; set; }
         public string? LastNameError { get; set; }
@@ -81,29 +83,23 @@ namespace PropertyValidator.Test.ViewModels
             Debug.Log("error key: {0}, value: {1}", e.PropertyName, e.FirstError);
         }
 
-        private void ShowValidationResult()
-        {
-            FirstNameError = validationService.GetErrorMessage(this, e => e.FirstName);
-            LastNameError = validationService.GetErrorMessage(this, e => e.LastName);
-            EmailAddressError = validationService.GetErrorMessage(this, e => e.EmailAddress);
-            PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
-        }
-
         private void Submit()
         {
             try
             {
+                Debug.Log("LastName: {0}", LastName);
                 validationService.EnsurePropertiesAreValid();
             }
             catch (PropertyException ex)
             {
                 var msg = ex.Message;
                 var args = ex.ValidationResultArgs;
+                toastService.ShowMessage(msg);
                 args.FillErrorProperty(this);
             }
+
             if (!validationService.Validate())
             {
-                ShowValidationResult();
                 var errors = $@"
 FirstName: {FirstNameError}
 LastName: {LastNameError}

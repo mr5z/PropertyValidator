@@ -24,7 +24,7 @@ namespace PropertyValidator.Models
             {
                 var dictionaryRules = GetValidationRules();
                 var listRules = dictionaryRules.Values.SelectMany(it => it);
-                var resultArgs = NewValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
+                var resultArgs = ValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
                 var isValid = resultArgs.ErrorMessages?.Any() != true;
                 if (!isValid)
                 {
@@ -36,7 +36,7 @@ namespace PropertyValidator.Models
             if (this.validationRules == null)
             {
                 var actionCollection = new ActionCollection<T>();
-                var ruleCollection = new NewRuleCollection<T>(actionCollection, value);
+                var ruleCollection = new RuleCollection<T>(actionCollection, value);
                 this.validationRules = ConfigureRules(ruleCollection).GetRules();
                 if (value is INotifyPropertyChanged target)
                 {
@@ -45,7 +45,7 @@ namespace PropertyValidator.Models
                 }
             }
 
-            return NewValidationService.ValidateRuleCollection(
+            return ValidationService.ValidateRuleCollection(
                 GetValidationRules(),
                 value
             );

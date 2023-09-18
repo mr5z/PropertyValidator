@@ -1,218 +1,184 @@
-﻿//using CrossUtility.Extensions;
-//using PropertyValidator.Exceptions;
-//using PropertyValidator.Models;
-//using System;
-//using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.Diagnostics.CodeAnalysis;
-//using System.Linq;
-//using System.Linq.Expressions;
-//using System.Reflection;
-//using System.Threading;
-//using System.Threading.Tasks;
+﻿using CrossUtility.Extensions;
+using CrossUtility.Helpers;
+using ObservableProperty.Services.Implementation;
+using PropertyValidator.Exceptions;
+using PropertyValidator.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
-//namespace PropertyValidator.Services
-//{
-//    [Obsolete($"Please use the {nameof(NewValidationService)}", true)]
-//    public class ValidationService : IValidationService
-//    {
-//        private INotifyPropertyChanged? notifiableModel;
-//        private object? ruleCollection;
-//        private bool autofill;
-//        private TimeSpan? delay;
-//        private MethodInfo? methodInfo;
-//        private CancellationTokenSource? cts;
+namespace PropertyValidator.Services
+{
+    public class ValidationService : IValidationService
+    {
+        private object? notifiableModel;
+        private bool autofill;
+        private TimeSpan? delay;
 
-//        public event EventHandler<ValidationResultArgs>? PropertyInvalid;
+        private CancellationTokenSource? cts;
+        private MethodInfo? methodInfo;
+        private object? ruleCollection;
+        private bool IsInitialized => this.notifiableModel != null;
 
-//        public IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
-//            [NotNull]
-//            TNotifiableModel notifiableModel,
-//            bool autofill,
-//            TimeSpan? delay) where TNotifiableModel : INotifyPropertyChanged
-//        {
-//            this.notifiableModel = notifiableModel;
-//            this.autofill = autofill;
-//            this.delay = delay;
+        public event EventHandler<ValidationResultArgs>? PropertyInvalid;
 
-//            ruleCollection = new RuleCollection<TNotifiableModel>(notifiableModel);
-//            notifiableModel.PropertyChanged += NotifiableModel_PropertyChanged;
-//            var type = typeof(RuleCollection<TNotifiableModel>);
-//            methodInfo = type.GetMethod(nameof(RuleCollection<INotifyPropertyChanged>.GetRules));
-//            return (RuleCollection<TNotifiableModel>)ruleCollection;
-//        }
+        public IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
+            TNotifiableModel notifiableModel,
+            bool autofill,
+            TimeSpan? delay)
+            where TNotifiableModel : INotifyPropertyChanged
+        {
+            if (IsInitialized)
+                throw new InvalidOperationException($"'{nameof(For)}' may only be called once.");
 
-//        private List<IValidationRule> GetRules()
-//        {
-//            EnsureEntryMethodInvoked();
+            this.notifiableModel = notifiableModel;
+            this.autofill = autofill;
+            this.delay = delay;
 
-//            var returnValue = methodInfo!.Invoke(ruleCollection, null);
-//            return (List<IValidationRule>)returnValue;
-//        }
+            return BuildRuleCollection(notifiableModel);
+        }
 
-//        private async void NotifiableModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-//        {
-//            var containsTarget = GetRules().Any(it => it.PropertyName == e.PropertyName);
-//            if (!containsTarget)
-//                return;
+        private IRuleCollection<TNotifiableModel> BuildRuleCollection<TNotifiableModel>(TNotifiableModel model)
+            where TNotifiableModel : INotifyPropertyChanged
+        {
+            var observable = new ObservablePropertyChanged();
+            var action = observable.Observe(model);
+            var collection = new RuleCollection<TNotifiableModel>(action, model);
 
-//            // I really don't like to use `async void` but 
-//            // I can't make the .ContinueWith to propagate
-//            // the exception back to original context i.e., main thread
-//            // but to back up this solution, C# overlords say it's okay
-//            // to have async void but for top-level event handlers only
-//            // link: https://stackoverflow.com/a/19415703/2304737
-//            await PropertyChangedAsync(sender, e);
+            var type = typeof(RuleCollection<TNotifiableModel>);
+            this.ruleCollection = collection;
+            this.methodInfo = type.GetMethod(nameof(RuleCollection<INotifyPropertyChanged>.GetRules));
 
-//            // TODO not working but preferrable to use this
-//            //_ = PropertyChangedAsync(sender, e).ContinueWith(task =>
-//            //{
-//            //    //if (task.Exception != null)
-//            //    //    throw task.Exception;
+            collection.ValidationResult += (sender, e) => ValidateByProperty(e.Name, e.Value).FireAndForget();
 
-//            //    var threadId = Thread.CurrentThread.ManagedThreadId;
-//            //    Exception ex = task.Exception;
-//            //    while (ex is AggregateException && ex.InnerException != null)
-//            //        ex = ex.InnerException;
-//            //    throw ex;
-//            //},
-//            //cancellationToken: default,
-//            //continuationOptions: TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.AttachedToParent,
-//            //scheduler: TaskScheduler.FromCurrentSynchronizationContext());
-//        }
+            return collection;
+        }
 
-//        private async Task PropertyChangedAsync(object sender, PropertyChangedEventArgs e)
-//        {
-//            if (delay != null)
-//            {
-//                cts?.Cancel();
-//                cts = new CancellationTokenSource();
-//                try
-//                {
-//                    await Task.Delay(delay.Value, cts.Token);
-//                }
-//                catch (TaskCanceledException)
-//                {
-//                    return;
-//                }
-//            }
+        private async Task ValidateByProperty<TValue>(string propertyName, TValue? value)
+        {
+            if (await ShouldCancel())
+                return;
 
-//            Validate(e.PropertyName);
+            var validationRules = GetRules();
 
-//            var eventArgs = GetValidationResultArgs(e.PropertyName);
-//            if (autofill)
-//            {
-//                EnsureEntryMethodInvoked();
-//                eventArgs.FillErrorProperty(notifiableModel!);
-//            }
-//            PropertyInvalid?.Invoke(this, eventArgs);
-//        }
+            if (!validationRules.TryGetValue(propertyName, out var propertyRules))
+                throw new InvalidOperationException($"'{propertyName}' is not registered to validation rules.");
 
-//        private List<string?> GetErrorMessages(string propertyName) 
-//        {
-//            return GetRules()
-//                .Where(it => it.HasError && it.PropertyName == propertyName)
-//                .Select(it => it.Error)
-//                .ToList();
-//        }
+            var resultArgs = GetValidationResultArgs(propertyName, value, propertyRules);
 
-//        public string? GetErrorMessage<TNotifiableModel>(
-//            TNotifiableModel notifiableProperty, 
-//            Expression<Func<TNotifiableModel, object?>> expression) 
-//            where TNotifiableModel : INotifyPropertyChanged
-//        {
-//            var propertyName = expression.GetMemberName();
-//            return GetErrorMessages(propertyName).FirstOrDefault();
-//        }
+            if (this.autofill)
+            {
+                var inpc = this.notifiableModel as INotifyPropertyChanged;
+                resultArgs.FillErrorProperty(inpc!);
+            }
 
-//        public string? GetErrorMessage<TNotifiableModel>(string propertyName)
-//        {
-//            return GetErrorMessages(propertyName).FirstOrDefault();
-//        }
+            PropertyInvalid?.Invoke(this, resultArgs);
+        }
 
-//        public bool HasError()
-//        {
-//            return GetRules().Any(x => x.HasError);
-//        }
+        public static ValidationResultArgs GetValidationResultArgs(
+            string propertyName,
+            object? propertyValue,
+            IEnumerable<IValidationRule> validatedRules)
+        {
+            var errorMessages = validatedRules
+                .Where(it => !it.Validate(propertyValue))
+                .Select(it => it.Error);
 
-//        public bool Validate()
-//        {
-//            return ValidateImpl();
-//        }
+            var errorDictionary = new Dictionary<string, IEnumerable<string?>> {
+                [propertyName] = errorMessages
+            };
 
-//        public bool Validate([NotNull] string propertyName)
-//        {
-//            return ValidateImpl(propertyName);
-//        }
+            return new ValidationResultArgs(propertyName, errorDictionary);
+        }
 
-//        public void EnsurePropertiesAreValid()
-//        {
-//            ValidateAllProperties();
-//            var resultArgs = GetValidationResultArgs();
-//            var firstError = resultArgs.FirstError;
-//            if (!string.IsNullOrEmpty(firstError))
-//                throw new PropertyException(resultArgs);
-//        }
+        private static ValidationResultArgs GetValidationResultArgs(
+            object target,
+            IDictionary<string, IEnumerable<IValidationRule>> validationRules)
+        {
+            var type = target.GetType();
+            var errorDictionary = new Dictionary<string, IEnumerable<string?>>();
 
-//        private void ValidateAllProperties()
-//        {
-//            var ruleCollection = GetRules();
-//            foreach (var rule in ruleCollection)
-//            {
-//                Validate(rule.PropertyName!);
-//            }
-//        }
+            foreach (var entry in validationRules)
+            {
+                var (propertyName, rules) = entry;
+                var property = type.GetProperty(propertyName);
+                var value = property.GetValue(target, null);
 
-//        private ValidationResultArgs GetValidationResultArgs(string? propertyName = null)
-//        {
-//            var enumerable = GetRules().AsEnumerable();
+                foreach (var rule in rules)
+                {
+                    if (rule.Validate(value))
+                        continue;
 
-//            if (!string.IsNullOrEmpty(propertyName))
-//            {
-//                enumerable = enumerable.Where(it => it.PropertyName == propertyName);
-//            }
+                    Debug.Log("property {{ name: {0}, value: {1} }}, rule: {2}", propertyName, value, rule);
 
-//            var errorMessages = enumerable
-//                .Select(it => new { it.PropertyName, ErrorMessage = it.HasError ? it.Error : null })
-//                .GroupBy(it => it.PropertyName)
-//                .ToDictionary(group => group.Key, g => g.Select(it => it.ErrorMessage));
+                    errorDictionary.TryGetValue(propertyName, out var oldList);
+                    var errorList = new List<string?>(oldList ?? Enumerable.Empty<string?>())
+                    {
+                        rule.ErrorMessage
+                    };
+                    errorDictionary[propertyName] = errorList;
+                }
+            }
 
-//            return new ValidationResultArgs(propertyName, errorMessages!);
-//        }
+            return new ValidationResultArgs(null, errorDictionary);
+        }
 
-//        private bool ValidateImpl(string? propertyName = null)
-//        {
-//            EnsureEntryMethodInvoked();
-//            return ValidateRuleCollection(GetRules(), notifiableModel!, propertyName);
-//        }
+        private async Task<bool> ShouldCancel()
+        {
+            if (this.delay == null)
+                return false;
 
-//        private void EnsureEntryMethodInvoked()
-//        {
-//            if (notifiableModel == null)
-//                throw new InvalidOperationException($"Please use '{nameof(For)}' before invoking this method.");
-//        }
+            this.cts?.Cancel();
+            this.cts = new CancellationTokenSource();
+            try
+            {
+                await Task.Delay(this.delay.Value, this.cts.Token);
+                return false;
+            }
+            catch (TaskCanceledException)
+            {
+                return true;
+            }
+        }
 
-//        public static bool ValidateRuleCollection(
-//            IEnumerable<IValidationRule> ruleCollection,
-//            object target,
-//            string? propertyName = null)
-//        {
-//            bool noErrors = true;
-//            var type = target.GetType();
-//            var filteredCollection = ruleCollection.Where(it =>
-//                 it.PropertyName != propertyName || string.IsNullOrEmpty(propertyName)
-//            );
-//            foreach (var rule in filteredCollection)
-//            {
-//                // if propertyName ay may laman
-//                // at magkaiba ng property value
-//                // then skip
-//                var property = type.GetProperty(rule.PropertyName);
-//                var value = property.GetValue(target, null);
-//                var isValid = rule.Validate(value);
-//                noErrors = noErrors && isValid;
-//            }
-//            return noErrors;
-//        }
-//    }
-//}
+        private IDictionary<string, IEnumerable<IValidationRule>> GetRules()
+        {
+            var returnValue = this.methodInfo!.Invoke(this.ruleCollection!, null);
+            return (IDictionary<string, IEnumerable<IValidationRule>>)returnValue;
+        }
+
+        private void EnsureEntryMethodInvoked()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException($"Please use '{nameof(For)}' before invoking this method.");
+        }
+
+        public void EnsurePropertiesAreValid()
+        {
+            EnsureEntryMethodInvoked();
+
+            var eventArgs = GetValidationResultArgs(this.notifiableModel!, GetRules());
+            if (eventArgs.FirstError != null)
+                throw new PropertyException(eventArgs);
+        }
+
+        public bool Validate()
+        {
+            EnsureEntryMethodInvoked();
+            return ValidateRuleCollection(GetRules(), this.notifiableModel!);
+        }
+
+        public static bool ValidateRuleCollection(
+            IDictionary<string, IEnumerable<IValidationRule>> ruleCollection,
+            object target)
+        {
+            var resultArgs = GetValidationResultArgs(target, ruleCollection);
+            return resultArgs.ErrorMessages?.Any() != true;
+        }
+    }
+}
