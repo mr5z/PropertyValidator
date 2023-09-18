@@ -34,17 +34,6 @@ public interface IValidationService
         TimeSpan? delay = null)
         where TNotifiableModel : INotifyPropertyChanged;
 
-    // Retrieve error messages per property.
-    // Returns the first error message.
-    string? GetErrorMessage<TNotifiableModel>(
-        TNotifiableModel _,
-        Expression<Func<TNotifiableModel, object?>> expression)
-        where TNotifiableModel : INotifyPropertyChanged;
-
-    // Retrieve error messages per property.
-    // Returns the first error message.
-    string? GetErrorMessage<TNotifiableModel>(string propertyName);
-
     // Ensure all properties are in a valid state based from the provided validation rules.
     // Throws PropertyException if there is an error.
     void EnsurePropertiesAreValid();
