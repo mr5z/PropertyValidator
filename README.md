@@ -191,16 +191,9 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 }
 ```
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return, if it's false, find the error message using `ValidationService::GetErrorMessage()`. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
+3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
 
 ``` c#
-private void ShowValidationResult()
-{
-    FirstNameError = validationService.GetErrorMessage(this, e => e.FirstName);
-    LastNameError = validationService.GetErrorMessage(this, e => e.LastName);
-    EmailAddressError = validationService.GetErrorMessage(this, e => e.EmailAddress);
-    PhysicalAddressError = validationService.GetErrorMessage(this, e => e.PhysicalAddress);
-}
 
 // Using ValidationService::GetErrorMessage()
 private void Register1()
