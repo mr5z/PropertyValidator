@@ -16,7 +16,7 @@ XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator
 validationService.For(this)
     .AddRule(e => e.FirstName, new RequiredRule())
     .AddRule(e => e.LastName, new LengthRule(50))
-    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
+    .AddRule(e => e.EmailAddress, "Custom error message", new RequiredRule(), new LengthRule(100), new EmailFormatRule());
 ```
 
 ### Service interface
