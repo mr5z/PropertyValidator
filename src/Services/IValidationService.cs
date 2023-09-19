@@ -1,7 +1,7 @@
 ﻿using PropertyValidator.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq.Expressions;
 
 namespace PropertyValidator.Services
 {
@@ -17,9 +17,8 @@ namespace PropertyValidator.Services
         /// <returns>RuleCollection so that it can be chained</returns>
         IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
             TNotifiableModel notifiableModel,
-            bool autofill = false,
             TimeSpan? delay = null)
-            where TNotifiableModel : INotifyPropertyChanged;
+            where TNotifiableModel : INotifyPropertyChanged, INotifiableModel;
 
         /// <summary>
         /// Ensure all properties are in a valid state based from the provided validation rules
@@ -32,6 +31,12 @@ namespace PropertyValidator.Services
         /// </summary>
         /// <returns></returns>
         bool Validate();
+
+        /// <summary>
+        /// Retrieves most recent errors after validating them
+        /// </summary>
+        /// <returns></returns>
+        IDictionary<string, string?> GetErrors();
 
         /// <summary>
         /// Subscribe to error events (cleared/raised)

@@ -1,13 +1,13 @@
 ﻿using CrossUtility.Extensions;
-using CrossUtility.Helpers;
 using ObservableProperty.Services.Implementation;
 using PropertyValidator.Exceptions;
+using PropertyValidator.Helpers;
 using PropertyValidator.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +17,6 @@ namespace PropertyValidator.Services
     public class ValidationService : IValidationService
     {
         private object? notifiableModel;
-        private bool autofill;
         private TimeSpan? delay;
 
         private CancellationTokenSource? cts;
@@ -25,36 +24,39 @@ namespace PropertyValidator.Services
         private object? ruleCollection;
         private bool IsInitialized => this.notifiableModel != null;
 
+        private IDictionary<string, string?> recentErrors = null!;
+
         public event EventHandler<ValidationResultArgs>? PropertyInvalid;
 
         public IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
             TNotifiableModel notifiableModel,
-            bool autofill,
             TimeSpan? delay)
-            where TNotifiableModel : INotifyPropertyChanged
+            where TNotifiableModel : INotifyPropertyChanged, INotifiableModel
         {
             if (IsInitialized)
                 throw new InvalidOperationException($"'{nameof(For)}' may only be called once.");
 
             this.notifiableModel = notifiableModel;
-            this.autofill = autofill;
             this.delay = delay;
 
             return BuildRuleCollection(notifiableModel);
         }
 
         private IRuleCollection<TNotifiableModel> BuildRuleCollection<TNotifiableModel>(TNotifiableModel model)
-            where TNotifiableModel : INotifyPropertyChanged
+            where TNotifiableModel : INotifyPropertyChanged, INotifiableModel
         {
             var observable = new ObservablePropertyChanged();
             var action = observable.Observe(model);
             var collection = new RuleCollection<TNotifiableModel>(action, model);
+            var recentErrors = new ObservableDictionary<string, string?>();
 
             var type = typeof(RuleCollection<TNotifiableModel>);
             this.ruleCollection = collection;
             this.methodInfo = type.GetMethod(nameof(RuleCollection<INotifyPropertyChanged>.GetRules));
+            this.recentErrors = recentErrors;
 
             collection.ValidationResult += (sender, e) => ValidateByProperty(e.Name, e.Value).FireAndForget();
+            recentErrors.CollectionChanged += (sender, e) => model.NotifyPropertyChanged();
 
             return collection;
         }
@@ -70,11 +72,10 @@ namespace PropertyValidator.Services
                 throw new InvalidOperationException($"'{propertyName}' is not registered to validation rules.");
 
             var resultArgs = GetValidationResultArgs(propertyName, value, propertyRules);
-
-            if (this.autofill)
+            this.recentErrors[propertyName] = null;
+            foreach (var entry in resultArgs.ErrorDictionary)
             {
-                var inpc = this.notifiableModel as INotifyPropertyChanged;
-                resultArgs.FillErrorProperty(inpc!);
+                this.recentErrors[entry.Key] = string.Join(", ", entry.Value);
             }
 
             PropertyInvalid?.Invoke(this, resultArgs);
@@ -85,13 +86,14 @@ namespace PropertyValidator.Services
             object? propertyValue,
             IEnumerable<IValidationRule> validatedRules)
         {
-            var errorMessages = validatedRules
-                .Where(it => !it.Validate(propertyValue))
-                .Select(it => it.Error);
+            var errorMessages = GetErrorMessages(validatedRules, propertyValue);
 
-            var errorDictionary = new Dictionary<string, IEnumerable<string?>> {
-                [propertyName] = errorMessages
-            };
+            var errorDictionary = new Dictionary<string, IEnumerable<string?>>();
+
+            if (errorMessages.Any())
+            {
+                errorDictionary[propertyName] = errorMessages;
+            }
 
             return new ValidationResultArgs(propertyName, errorDictionary);
         }
@@ -109,23 +111,31 @@ namespace PropertyValidator.Services
                 var property = type.GetProperty(propertyName);
                 var value = property.GetValue(target, null);
 
-                foreach (var rule in rules)
+                var errorMessages = GetErrorMessages(rules, value);
+
+                if (!errorMessages.Any())
                 {
-                    if (rule.Validate(value))
-                        continue;
+                    continue;
+                }
 
-                    Debug.Log("property {{ name: {0}, value: {1} }}, rule: {2}", propertyName, value, rule);
-
-                    errorDictionary.TryGetValue(propertyName, out var oldList);
-                    var errorList = new List<string?>(oldList ?? Enumerable.Empty<string?>())
-                    {
-                        rule.ErrorMessage
-                    };
-                    errorDictionary[propertyName] = errorList;
+                if (errorDictionary.TryGetValue(propertyName, out var oldList))
+                {
+                    errorDictionary[propertyName] = oldList.Concat(errorMessages);
+                }
+                else
+                {
+                    errorDictionary[propertyName] = errorMessages;
                 }
             }
 
             return new ValidationResultArgs(null, errorDictionary);
+        }
+
+        private static IEnumerable<string> GetErrorMessages(IEnumerable<IValidationRule> rules, object? value)
+        {
+            return rules
+                .Where(rule => !rule.Validate(value))
+                .Select(rule => rule.Error);
         }
 
         private async Task<bool> ShouldCancel()
@@ -155,16 +165,22 @@ namespace PropertyValidator.Services
         private void EnsureEntryMethodInvoked()
         {
             if (!IsInitialized)
-                throw new InvalidOperationException($"Please use '{nameof(For)}' before invoking this method.");
+                throw new InvalidOperationException($"Please use '{nameof(For)}(<target object>)' before invoking this method.");
         }
 
         public void EnsurePropertiesAreValid()
         {
             EnsureEntryMethodInvoked();
 
-            var eventArgs = GetValidationResultArgs(this.notifiableModel!, GetRules());
-            if (eventArgs.FirstError != null)
-                throw new PropertyException(eventArgs);
+            var resultArgs = GetValidationResultArgs(this.notifiableModel!, GetRules());
+            this.recentErrors.Clear();
+            foreach (var entry in resultArgs.ErrorDictionary)
+            {
+                this.recentErrors[entry.Key] = string.Join(", ", entry.Value);
+            }
+
+            if (resultArgs.FirstError != null)
+                throw new PropertyException(resultArgs);
         }
 
         public bool Validate()
@@ -179,6 +195,11 @@ namespace PropertyValidator.Services
         {
             var resultArgs = GetValidationResultArgs(target, ruleCollection);
             return resultArgs.ErrorMessages?.Any() != true;
+        }
+
+        public IDictionary<string, string?> GetErrors()
+        {
+            return this.recentErrors;
         }
     }
 }

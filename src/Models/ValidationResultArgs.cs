@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 
 namespace PropertyValidator.Models
 {
     public class ValidationResultArgs : EventArgs
     {
-        private const string KnownErrorPropertyPattern = "Error";
-
         public ValidationResultArgs(string? propertyName, IDictionary<string, IEnumerable<string?>> errorDictionary)
         {
             PropertyName = propertyName;
@@ -24,30 +20,9 @@ namespace PropertyValidator.Models
             .Values
             .FirstOrDefault(errors => errors.Any(message => !string.IsNullOrEmpty(message)));
 
+        public bool HasError => ErrorMessages?.Any() == true;
+
         public string? FirstError => ErrorMessages?
             .FirstOrDefault();
-
-        public void FillErrorProperty<T>(T notifiableModel) where T : INotifyPropertyChanged
-        {
-            if (PropertyName != null)
-            {
-                FillError(notifiableModel, PropertyName, FirstError);
-                return;
-            }
-
-            foreach (var (key, value) in ErrorDictionary)
-            {
-                FillError(notifiableModel, key, value.FirstOrDefault());
-            }
-        }
-
-        private void FillError<T>(T notifiableModel, string propertyName, string? errorMessage) where T : INotifyPropertyChanged
-        {
-            var errorProperty = propertyName + KnownErrorPropertyPattern;
-            var propInfo = notifiableModel.GetType().GetProperty(errorProperty);
-            if (propInfo == null)
-                throw new TargetException($"Property '{errorProperty}' not found in target '{notifiableModel.GetType().Name}'");
-            propInfo.SetValue(notifiableModel, errorMessage);
-        }
     }
 }
