@@ -9,7 +9,7 @@
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
 
-XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/master/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
+XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/main/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
 
 ## Example usage
 ```c#
