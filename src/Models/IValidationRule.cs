@@ -4,8 +4,8 @@
     {
         string? PropertyName { get; set; }
         bool Validate(object? value);
-        string? ErrorMessage { get; }
+        string ErrorMessage { get; }
         string? ErrorMessageOverride { get; set; }
-        string? Error => ErrorMessageOverride ?? ErrorMessage;
+        string Error => ErrorMessageOverride ?? ErrorMessage;
     }
 }

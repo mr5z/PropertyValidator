@@ -19,14 +19,14 @@
                 Text="{Binding FirstName}"
                 Placeholder="First name" />
             <Label
-                Text="{Binding FirstNameError}"
+                Text="{Binding Errors[FirstName]}"
                 TextColor="Red"
                 FontSize="Small" />
             <Entry
                 Text="{Binding LastName}"
                 Placeholder="Last name" />
             <Label
-                Text="{Binding LastNameError}"
+                Text="{Binding Errors[LastName]}"
                 TextColor="Red"
                 FontSize="Small" />
             <Entry
@@ -34,7 +34,7 @@
                 Keyboard="Email"
                 Placeholder="Email address" />
             <Label
-                Text="{Binding EmailAddressError}"
+                Text="{Binding Errors[EmailAddress]}"
                 TextColor="Red"
                 FontSize="Small" />
             <StackLayout
@@ -57,7 +57,7 @@
                     Text="{Binding PhysicalAddress.CountryIsoCode}"
                     Placeholder="2 letter ISO country code" />
                 <Label
-                    Text="{Binding PhysicalAddressError}"
+                    Text="{Binding Errors[PhysicalAddress]}"
                     TextColor="Red"
                     FontSize="Small" />
             </StackLayout>

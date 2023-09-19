@@ -1,6 +1,6 @@
-﻿using Prism.Commands;
-using Prism.Navigation;
+﻿using Prism.Navigation;
 using PropertyValidator.Exceptions;
+using PropertyValidator.Helpers;
 using PropertyValidator.Models;
 using PropertyValidator.Services;
 using PropertyValidator.Test.Helpers;
@@ -8,12 +8,14 @@ using PropertyValidator.Test.Models;
 using PropertyValidator.Test.Services;
 using PropertyValidator.Test.Validation;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using XamarinUtility.Commands;
 
 namespace PropertyValidator.Test.ViewModels
 {
-    public class ItemsPageViewModel : BaseViewModel, IInitialize
+    public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     {
         private readonly IValidationService validationService;
         private readonly IToastService toastService;
@@ -39,15 +41,11 @@ namespace PropertyValidator.Test.ViewModels
         public string? CountryIsoCode { get; set; }
         public ICommand SubmitCommand { get; set; }
 
-        public string? FirstNameError { get; set; }
-        public string? LastNameError { get; set; }
-        public string? EmailAddressError { get; set; }
-        public string? PhysicalAddressError { get; set; }
+        public IDictionary<string, string?> Errors => validationService.GetErrors();
 
         public void Initialize(INavigationParameters parameters)
         {
             validationService.For(this,
-                autofill: true,
                 delay: TimeSpan.FromSeconds(0.7))
                 .AddRule(e => e.FirstName, new RequiredRule(), new MinLengthRule(2))
                 .AddRule(e => e.LastName, new RequiredRule(), new MaxLengthRule(5))
@@ -57,29 +55,10 @@ namespace PropertyValidator.Test.ViewModels
             //validationService.PropertyInvalid += ValidationService_PropertyInvalid;
         }
 
+        public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
+
         private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)
         {
-            switch (e.PropertyName)
-            {
-                case nameof(FirstName):
-                    FirstNameError = e.FirstError;
-                    break;
-                case nameof(LastName):
-                    LastNameError = e.FirstError;
-                    break;
-                case nameof(EmailAddress):
-                    EmailAddressError = e.FirstError;
-                    break;
-                case nameof(PhysicalAddress):
-                    PhysicalAddressError = e.FirstError;
-                    break;
-            }
-
-            e.FillErrorProperty(this);
-
-            // To retrieve all the error message of the property, use:
-            var errorMessages = e.ErrorMessages;
-
             Debug.Log("error key: {0}, value: {1}", e.PropertyName, e.FirstError);
         }
 
@@ -90,22 +69,13 @@ namespace PropertyValidator.Test.ViewModels
                 Debug.Log("LastName: {0}", LastName);
                 validationService.EnsurePropertiesAreValid();
             }
-            catch (PropertyException ex)
+            catch (PropertyException)
             {
-                var msg = ex.Message;
-                var args = ex.ValidationResultArgs;
-                toastService.ShowMessage(msg);
-                args.FillErrorProperty(this);
             }
 
             if (!validationService.Validate())
             {
-                var errors = $@"
-FirstName: {FirstNameError}
-LastName: {LastNameError}
-EmailAddress: {EmailAddressError}
-PhysicalAddress: {PhysicalAddressError}
-";
+                var errors = string.Join(", ", Errors.Select(e => e.Value));
                 toastService.ShowMessage("Errors: {0}", errors);
             }
         }

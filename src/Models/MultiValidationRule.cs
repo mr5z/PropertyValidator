@@ -1,7 +1,6 @@
 ﻿using ObservableProperty.Services;
 using PropertyValidator.Services;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 namespace PropertyValidator.Models
@@ -20,29 +19,11 @@ namespace PropertyValidator.Models
                 return false;
             }
 
-            void Target_PropertyChanged(object sender, PropertyChangedEventArgs e)
-            {
-                var dictionaryRules = GetValidationRules();
-                var listRules = dictionaryRules.Values.SelectMany(it => it);
-                var resultArgs = ValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
-                var isValid = resultArgs.ErrorMessages?.Any() != true;
-                if (!isValid)
-                {
-                    var inpc = sender as INotifyPropertyChanged;
-                    //resultArgs.FillErrorProperty(inpc!);
-                }
-            }
-
             if (this.validationRules == null)
             {
                 var actionCollection = new ActionCollection<T>();
                 var ruleCollection = new RuleCollection<T>(actionCollection, value);
                 this.validationRules = ConfigureRules(ruleCollection).GetRules();
-                if (value is INotifyPropertyChanged target)
-                {
-                    target.PropertyChanged -= Target_PropertyChanged;
-                    target.PropertyChanged += Target_PropertyChanged;
-                }
             }
 
             return ValidationService.ValidateRuleCollection(
@@ -63,7 +44,7 @@ namespace PropertyValidator.Models
         {
             return this.validationRules
                 .SelectMany(it => it.Value)
-                .Select(e => $"{e.PropertyName}:\"{e.ErrorMessage}\"");
+                .Select(e => $"\"{e.PropertyName}\":\"{e.Error}\"");
         }
     }
 }

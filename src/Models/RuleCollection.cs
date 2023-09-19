@@ -85,13 +85,16 @@ namespace PropertyValidator.Models
             string? errorMessageOverride,
             params ValidationRule<TProperty>[] rules)
         {
-            RegisterRuleFor(propertyName, rules);
+            RegisterRuleFor(propertyName, errorMessageOverride, rules);
             return this;
         }
 
-        private void RegisterRuleFor<TProperty>(string propertyName, params ValidationRule<TProperty>[] rules)
+        private void RegisterRuleFor<TProperty>(string propertyName, string? errorMessageOverride, params ValidationRule<TProperty>[] rules)
         {
-            Array.ForEach(rules, rule => rule.PropertyName = propertyName);
+            Array.ForEach(rules, rule => {
+                rule.PropertyName = propertyName;
+                rule.ErrorMessageOverride = errorMessageOverride;
+            });
             this.validationRules[propertyName] = rules;
             this.actionCollection.When<TProperty>(propertyName, it => {
                 var eventArgs = new PropertyChangedValidationEventArgs(propertyName, it);
