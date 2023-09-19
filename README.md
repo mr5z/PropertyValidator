@@ -132,11 +132,6 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
-    public string? FirstNameError { get; set; }
-    public string? LastNameError { get; set; }
-    public string? EmailAddressError { get; set; }
-    public string? PhysicalAddressError { get; set; }
-
     // You must do this only once in the initialization part of your class model.
     public void Initialize(INavigationParameters parameters)
     {
@@ -162,29 +157,8 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
 
     private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)
     {
-        switch (e.PropertyName)
-        {
-            case nameof(FirstName):
-                FirstNameError = e.FirstError;
-                break;
-            case nameof(LastName):
-                LastNameError = e.FirstError;
-                break;
-            case nameof(EmailAddress):
-                EmailAddressError = e.FirstError;
-                break;
-            case nameof(PhysicalAddress):
-                PhysicalAddressError = e.FirstError;
-                break;
-        }
-        
         // To retrieve all the error message of the property, use:
         var errorMessages = e.ErrorMessages;
-        
-        // If you have a bunch of error properties, skip the tall switch-case and be more productive by using this:
-        e.FillErrorProperty(this);
-        // This will basically auto-fill the error properties you have in the target instance but,
-        // you must follow this convention: "<PropertyName>" + "Error"
     }
 }
 ```
@@ -241,7 +215,6 @@ private void Register3()
         if (ex is PropertyException propertyException)
         {
             var validationResult = propertyException.ValidationResultArgs;
-            validationResult.FillErrorProperty(this);
         }
     }
 }
