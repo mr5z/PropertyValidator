@@ -30,7 +30,6 @@ public interface IValidationService
     // Registers the model for validation.
     RuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
-        bool autofill = false,
         TimeSpan? delay = null)
         where TNotifiableModel : INotifyPropertyChanged;
 
@@ -119,7 +118,7 @@ The example below is implemented in Xamarin Forms together with [Prism](https://
 Take note that this library is not limited to Xamarin only, it's available to all platforms supported by .NET family.
 
 ``` c#
-public class ItemsPageViewModel : BaseViewModel, IInitialize
+public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
 {
     private readonly IValidationService validationService;
 
@@ -150,6 +149,16 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize
 
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
+
+    // Important!
+    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
+    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
+    public IDictionary<string, string?> Errors => validationService.GetErrors();
+
+    // Important!
+    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
+    // the "PropertyChanged" event for "Errors" property.
+    public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
 
     private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)
     {
@@ -236,24 +245,6 @@ private void Register3()
         }
     }
 }
-```
-
-### Autofill
-When autofill is enabled, each property you registered in the `.AddRule(...)` chain must have a backing error property and it must also follow the naming convention
-```c#
-public string <PropertyName>Error { get; set; }
-```
-Thus having a property `FirstName` must have a corresponding error property of `FirstNameError`.
-Once this is enabled, subscribing to the `PropertyInvalid` event becomes optional.
-```c#
-validationService.For(this, autofill: true)
-    .AddRule(e => e.FirstName, new RequiredRule())
-    .AddRule(e => e.LastName, new LengthRule(50))
-    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
-    .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
-    
-// We don't need to subscribe to the event anymore
-// validationService.PropertyInvalid += ValidationService_PropertyInvalid;
 ```
 
 ### Delay
