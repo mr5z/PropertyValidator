@@ -31,7 +31,7 @@ public interface IValidationService
     RuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
         TimeSpan? delay = null)
-        where TNotifiableModel : INotifyPropertyChanged;
+        where TNotifiableModel : INotifyPropertyChanged, INotifiableModel;
 
     // Ensure all properties are in a valid state based from the provided validation rules.
     // Throws PropertyException if there is an error.
