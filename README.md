@@ -132,6 +132,16 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
+    // Important!
+    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
+    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
+    public IDictionary<string, string?> Errors => validationService.GetErrors();
+
+    // Important!
+    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
+    // the "PropertyChanged" event for "Errors" property.
+    public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
+
     // You must do this only once in the initialization part of your class model.
     public void Initialize(INavigationParameters parameters)
     {
@@ -144,16 +154,6 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
 
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
-
-    // Important!
-    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
-    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
-    public IDictionary<string, string?> Errors => validationService.GetErrors();
-
-    // Important!
-    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
-    // the "PropertyChanged" event for "Errors" property.
-    public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
 
     private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)
     {
