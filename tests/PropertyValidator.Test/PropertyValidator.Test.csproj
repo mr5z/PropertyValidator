@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\PropertyValidator.ValidationPack\src\PropertyValidator.ValidationPack.csproj" />
     <ProjectReference Include="..\..\..\XamarinUtility\src\XamarinUtility.csproj" />
     <ProjectReference Include="..\..\src\PropertyValidator.csproj" />
   </ItemGroup>

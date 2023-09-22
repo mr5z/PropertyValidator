@@ -56,7 +56,7 @@ namespace PropertyValidator.Services
             this.recentErrors = recentErrors;
 
             collection.ValidationResult += (sender, e) => ValidateByProperty(e.Name, e.Value).FireAndForget();
-            recentErrors.CollectionChanged += (sender, e) => model.NotifyPropertyChanged();
+            recentErrors.CollectionChanged += (sender, e) => model.NotifyErrorPropertyChanged();
 
             return collection;
         }
@@ -81,7 +81,7 @@ namespace PropertyValidator.Services
             PropertyInvalid?.Invoke(this, resultArgs);
         }
 
-        public static ValidationResultArgs GetValidationResultArgs(
+        internal static ValidationResultArgs GetValidationResultArgs(
             string propertyName,
             object? propertyValue,
             IEnumerable<IValidationRule> validatedRules)
@@ -189,12 +189,12 @@ namespace PropertyValidator.Services
             return ValidateRuleCollection(GetRules(), this.notifiableModel!);
         }
 
-        public static bool ValidateRuleCollection(
+        internal static bool ValidateRuleCollection(
             IDictionary<string, IEnumerable<IValidationRule>> ruleCollection,
             object target)
         {
             var resultArgs = GetValidationResultArgs(target, ruleCollection);
-            return resultArgs.ErrorMessages?.Any() != true;
+            return !resultArgs.HasError;
         }
 
         public IDictionary<string, string?> GetErrors()
