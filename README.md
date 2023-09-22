@@ -151,6 +151,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
             // The error message have been overriden to "Deez nuts" since an aggregated error messages is awful.
             .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
 
+        // Optional
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
 
