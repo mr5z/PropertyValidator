@@ -165,7 +165,7 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
 > **Important**
 > 1. You must register an "Errors" property in your ViewModel since it will be used later on XAML.
 > This would contain all the active errors messages after each invocation of `ValidationService#Validate()`
-> 2. The ViewModel must implement `INotifiableModel` and must contain the code to manually raise the "PropertyChanged" event for "Errors" property.
+> 2. The ViewModel must implement `INotifiableModel` and must implement the method which should contain the code to manually raise the "PropertyChanged" event for "Errors" property.
 
 3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
 
