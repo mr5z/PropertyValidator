@@ -9,7 +9,7 @@
 ### Result
 ![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
 
-XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/master/PropertyValidator.Test/PropertyValidator.Test/Pages/ItemsPage.xaml)
+XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/Pages/ItemsPage.xaml)
 
 ## Example usage
 ```c#
@@ -31,7 +31,7 @@ public interface IValidationService
     RuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
         TimeSpan? delay = null)
-        where TNotifiableModel : INotifyPropertyChanged;
+        where TNotifiableModel : INotifyPropertyChanged, INotifiableModel;
 
     // Ensure all properties are in a valid state based from the provided validation rules.
     // Throws PropertyException if there is an error.
@@ -132,6 +132,16 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
+    // Important!
+    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
+    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
+    public IDictionary<string, string?> Errors => validationService.GetErrors();
+
+    // Important!
+    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
+    // the "PropertyChanged" event for "Errors" property.
+    public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
+
     // You must do this only once in the initialization part of your class model.
     public void Initialize(INavigationParameters parameters)
     {
@@ -144,16 +154,6 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
 
         validationService.PropertyInvalid += ValidationService_PropertyInvalid;
     }
-
-    // Important!
-    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
-    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
-    public IDictionary<string, string?> Errors => validationService.GetErrors();
-
-    // Important!
-    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
-    // the "PropertyChanged" event for "Errors" property.
-    public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
 
     private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)
     {
