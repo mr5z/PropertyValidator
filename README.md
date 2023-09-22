@@ -114,8 +114,8 @@ public class AddressRule : MultiValidationRule<Address>
 
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is implemented in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) library to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, and [PropertyChanged.Fody](https://github.com/Fody/PropertyChanged) for automatic INPC generation of getters/setters.
-Take note that this library is not limited to Xamarin only, it's available to all platforms supported by .NET family.
+The example below is implemented in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) to register `ValidationService` as injectable service, and [PropertyChanged.Fody](https://github.com/Fody/PropertyChanged) for automatic generation of getters/setters in INPC style.
+Take note that this library is not limited to Xamarin only, it's available to all platforms supported by .NET ecosystem.
 
 ``` c#
 public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
@@ -132,8 +132,10 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
+    // Used in XAML
     public IDictionary<string, string?> Errors => validationService.GetErrors();
 
+    // Used internally by this library to propagate changes from "Errors" property
     public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
 
     // You must do this only once in the initialization part of your class model.
