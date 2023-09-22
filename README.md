@@ -50,6 +50,7 @@ public interface IValidationService
 1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
 <details>
   <summary>See example implementations</summary>
+ 
 ``` c#
 // For email address
 public class EmailFormatRule : ValidationRule<string?>
@@ -112,6 +113,7 @@ public class AddressRule : MultiValidationRule<Address>
     }
 }
 ```
+
 </details>
 
 2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
