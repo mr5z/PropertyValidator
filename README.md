@@ -132,14 +132,8 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     public string? EmailAddress { get; set; }
     public Address PhysicalAddress { get; set; } = new Address();
 
-    // Important!
-    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
-    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
     public IDictionary<string, string?> Errors => validationService.GetErrors();
 
-    // Important!
-    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
-    // the "PropertyChanged" event for "Errors" property.
     public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
 
     // You must do this only once in the initialization part of your class model.
@@ -162,6 +156,13 @@ public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
     }
 }
 ```
+
+> **Important**
+> 1. You must register an "Errors" property in your ViewModel since it will be used later on XAML.
+> This would contain all the active errors messages after each invocation of `ValidationService#Validate()`
+> `public IDictionary<string, string?> Errors => validationService.GetErrors();`
+> 2. The ViewModel must implement `INotifiableModel` and must contain the code to manually raise the "PropertyChanged" event for "Errors" property.
+> `public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));`
 
 3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
 
