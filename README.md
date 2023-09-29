@@ -3,7 +3,7 @@
 [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)](https://github.com/mr5z/PropertyValidator/packages/385702)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/)
 
-`PropertyValidator` is a versatile library designed to simplify property validation for classes that implement the `INotifyPropertyChanged` interface. It offers a straightforward way to define and apply validation rules to properties, making it easier to ensure the integrity of your data.
+PropertyValidator is a versatile library designed to simplify property validation for classes that implement the `INotifyPropertyChanged` interface. It offers a straightforward way to define and apply validation rules to properties, making it easier to ensure the integrity of your data.
 
 ## Installation
 
@@ -31,7 +31,7 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
 ```
 
 ## Features
-`PropertyValidator` offers a range of features to streamline your validation process:
+PropertyValidator offers a range of features to streamline your validation process:
 
 - Simple and intuitive API for defining validation rules.
 - Supports both single-property rules and multi-property rules.
@@ -50,4 +50,4 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
 ## Support
 Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
 
-`PropertyValidator` is a versatile library that simplifies property validation for classes implementing `INotifyPropertyChanged`. It empowers you to ensure data integrity in your applications effortlessly. If you have any questions or suggestions, please don't hesitate to reach out and contribute to the project.
+PropertyValidator is a versatile library that simplifies property validation for classes implementing `INotifyPropertyChanged`. It empowers you to ensure data integrity in your applications effortlessly. If you have any questions or suggestions, please don't hesitate to reach out and contribute to the project.
