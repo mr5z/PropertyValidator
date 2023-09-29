@@ -40,6 +40,46 @@ PropertyValidator offers a range of features to streamline your validation proce
 - Offers event-based error handling through the `PropertyInvalid` event.
 - Supports delayed validation to enhance user experience.
 
+## Creating Custom Validation Rules
+PropertyValidator allows you to create custom validation rules to suit your specific validation requirements. To create a custom validation rule, follow these steps:
+
+1. Create a new class that inherits from `ValidationRule<T>`, where `T` is the type of the property you want to validate.
+
+2. Implement the `IsValid(T value)` method in your custom rule class. This method should return `true` if the value is valid according to your rule, and `false` otherwise.
+
+3. Override the `ErrorMessage` property to provide a custom error message that will be displayed when the validation fails.
+
+Here's an example of creating a custom validation rule to check if a string contains only alphanumeric characters:
+
+```csharp
+using PropertyValidator;
+
+public class AlphanumericRule : ValidationRule<string>
+{
+    public override string ErrorMessage => "Only alphanumeric characters are allowed.";
+
+    public override bool IsValid(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return true;
+
+        // Use regular expression to check if the string contains only alphanumeric characters
+        const string pattern = "^[a-zA-Z0-9]*$";
+        return Regex.IsMatch(value, pattern);
+    }
+}
+```
+Now, you can use your custom validation rule in your validation service. Here's an example of how to use the `AlphanumericRule`:
+
+```csharp
+var validationService = new ValidationService();
+
+// Register your model for validation and include the custom rule
+validationService.For(this)
+    .AddRule(e => e.Username, new AlphanumericRule());
+```
+By following these steps, you can create and use custom validation rules tailored to your specific validation needs in your PropertyValidator library.
+
 ## Getting Started
 1. Install the PropertyValidator library via NuGet.
 2. Create validation rule models by extending ValidationRule<T> or MultiValidationRule<T>, where T is the property type.
