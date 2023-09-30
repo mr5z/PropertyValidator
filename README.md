@@ -60,6 +60,10 @@ using PropertyValidator.ValidationPack;
 // Replace "YourCustomErrorMessages" with the name of your custom .resx file
 ErrorMessageHelper.UpdateResource<YourCustomErrorMessages>();
 ```
+3. Override the following keys:
+
+   ![image](https://github.com/mr5z/PropertyValidator/assets/6318395/8fc0f0c8-02eb-460e-9acc-f63eb4de7653)
+
 
 ## Creating Custom Validation Rules
 PropertyValidator allows you to create custom validation rules to suit your specific validation requirements. To create a custom validation rule, follow these steps:
