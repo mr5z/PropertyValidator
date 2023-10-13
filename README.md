@@ -114,5 +114,3 @@ By following these steps, you can create and use custom validation rules tailore
 
 ## Support
 Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
-
-PropertyValidator is a versatile library that simplifies property validation for classes implementing `INotifyPropertyChanged`. It empowers you to ensure data integrity in your applications effortlessly. If you have any questions or suggestions, please don't hesitate to reach out and contribute to the project.
