@@ -41,29 +41,12 @@ PropertyValidator offers a range of features to streamline your validation proce
 - Supports delayed validation to enhance user experience.
 
 ## ValidationPack - Common Validation Rules
-PropertyValidator now includes the [ValidationPack](https://github.com/mr5z/PropertyValidator.ValidationPack), a set of common validation rules to cover popular input validation scenarios. The ValidationPack includes the following rules:
+[ValidationPack](https://github.com/mr5z/PropertyValidator.ValidationPack) contains a set of common validation rules to cover popular input validation scenarios. The ValidationPack includes the following rules:
 - StringRequiredRule: Ensures that a string property is not empty or null.
 - MaxLengthRule: Validates that a string does not exceed a specified maximum length.
 - MinLengthRule: Checks that a string meets a specified minimum length.
 - RangeLengthRule: Validates that a string falls within a specific length range.
 - EmailFormatRule: Ensures that a string follows a valid email format.
-
-### Customizable Error Messages
-The error messages for these validation rules are provided through the ErrorMessages.resx file in the ValidationPack. However, you can easily customize these error messages to suit your application's needs.
-
-To replace the default error messages with your custom messages, follow these steps:
-1. Create your own .resx file with custom error messages.
-2. Use the ErrorMessageHelper.UpdateResource<T>() method, where T is the name of your custom .resx file. For example:
-```csharp
-using PropertyValidator.ValidationPack;
-
-// Replace "YourCustomErrorMessages" with the name of your custom .resx file
-ErrorMessageHelper.UpdateResource<YourCustomErrorMessages>();
-```
-3. Override the following keys:
-
-   ![image](https://github.com/mr5z/PropertyValidator/assets/6318395/8fc0f0c8-02eb-460e-9acc-f63eb4de7653)
-
 
 ## Creating Custom Validation Rules
 PropertyValidator allows you to create custom validation rules to suit your specific validation requirements. To create a custom validation rule, follow these steps:
