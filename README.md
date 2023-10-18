@@ -30,6 +30,10 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
     .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
 ```
 
+### Xamarin Forms code example
+1. [ViewModel](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/ViewModels/ItemsPageViewModel.cs)
+2. [XAML](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/Pages/ItemsPage.xaml)
+
 ## Features
 PropertyValidator offers a range of features to streamline your validation process:
 
