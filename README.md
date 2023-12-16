@@ -1,237 +1,103 @@
-## A simple library to help you validate properties of classes that implements `INotifyPropertyChanged`.
+[![NuGet Version](https://img.shields.io/nuget/v/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/)
+[![NuGet Pre-release](https://img.shields.io/nuget/vpre/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/)
+[![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)](https://github.com/mr5z/PropertyValidator/packages/385702)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/)
 
-### Installation
+PropertyValidator is a versatile library designed to simplify property validation for classes that implement the `INotifyPropertyChanged` interface. It offers a straightforward way to define and apply validation rules to properties, making it easier to ensure the integrity of your data.
 
-| Package | NuGet Stable | NuGet Pre-release | GitHub Release | Downloads |
-| ------- | ------------ | ----------------- | --------- | ----- |
-| [PropertyValidator](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator](https://img.shields.io/nuget/v/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator](https://img.shields.io/nuget/vpre/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) | [![PropertyValidator GitHub](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)](https://github.com/mr5z/PropertyValidator/packages/385702) | [![PropertyValidator](https://img.shields.io/nuget/dt/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/) |
- 
-### Result
-![Xamarin.Android](https://i.imgur.com/rVw3k6T.gif)
+## Installation
 
-XAML of this example: [ItemsPage.xaml](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/Pages/ItemsPage.xaml)
+You can install the PropertyValidator library via NuGet:
 
-## Example usage
-```c#
-validationService.For(this)
+```shell
+Install-Package PropertyValidator
+```
+
+## Example Usage
+Here's an example of how to use PropertyValidator in your code:
+
+```csharp
+using PropertyValidator;
+
+// ...
+
+var validationService = new ValidationService();
+
+// Register your model for validation
+validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
     .AddRule(e => e.FirstName, new RequiredRule())
     .AddRule(e => e.LastName, new LengthRule(50))
-    .AddRule(e => e.EmailAddress, "Custom error message", new RequiredRule(), new LengthRule(100), new EmailFormatRule());
+    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
 ```
 
-### Service interface
+### Xamarin Forms code example
+1. [ViewModel](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/ViewModels/ItemsPageViewModel.cs)
+2. [XAML](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/Pages/ItemsPage.xaml)
 
-The interface is pretty simple and self-documenting:
+## Features
+PropertyValidator offers a range of features to streamline your validation process:
 
-``` c#
-//  (yet with comments)
-public interface IValidationService
+- Simple and intuitive API for defining validation rules.
+- Supports both single-property rules and multi-property rules.
+- Allows you to create custom and simple to create validation rules.
+- Provides options to manually trigger validation or automatically ensure properties are valid.
+- Offers event-based error handling through the `PropertyInvalid` event.
+- Supports delayed validation to enhance user experience.
+
+## ValidationPack - Common Validation Rules
+[ValidationPack](https://github.com/mr5z/PropertyValidator.ValidationPack) contains a set of common validation rules to cover popular input validation scenarios. The ValidationPack includes the following rules:
+- StringRequiredRule: Ensures that a string property is not empty or null.
+- MaxLengthRule: Validates that a string does not exceed a specified maximum length.
+- MinLengthRule: Checks that a string meets a specified minimum length.
+- RangeLengthRule: Validates that a string falls within a specific length range.
+- EmailFormatRule: Ensures that a string follows a valid email format.
+
+## Creating Custom Validation Rules
+PropertyValidator allows you to create custom validation rules to suit your specific validation requirements. To create a custom validation rule, follow these steps:
+
+1. Create a new class that inherits from `ValidationRule<T>`, where `T` is the type of the property you want to validate.
+
+2. Implement the `IsValid(T value)` method in your custom rule class. This method should return `true` if the value is valid according to your rule, and `false` otherwise.
+
+3. Override the `ErrorMessage` property to provide a custom error message that will be displayed when the validation fails.
+
+Here's an example of creating a custom validation rule to check if a string contains only alphanumeric characters:
+
+```csharp
+using PropertyValidator;
+
+public class AlphanumericRule : ValidationRule<string>
 {
-    // Registers the model for validation.
-    RuleCollection<TNotifiableModel> For<TNotifiableModel>(
-        TNotifiableModel notifiableModel,
-        TimeSpan? delay = null)
-        where TNotifiableModel : INotifyPropertyChanged, INotifiableModel;
+    public override string ErrorMessage => "Only alphanumeric characters are allowed.";
 
-    // Ensure all properties are in a valid state based from the provided validation rules.
-    // Throws PropertyException if there is an error.
-    void EnsurePropertiesAreValid();
-
-    // Trigger manually the validation.
-    bool Validate();
-
-    // Subscribe to error events (cleared/raised).
-    event EventHandler<ValidationResultArgs>? PropertyInvalid;
-}
-```
-
-### Setup
-
-1. Create the validation rule models by extending the `ValidationRule<T>` or `MultiValidationRule<T>`, where `T` is the type of the target property.
-
-``` c#
-// For email address
-public class EmailFormatRule : ValidationRule<string?>
-{
-    public override string ErrorMessage => "Not a valid email format";
-
-    public override bool IsValid(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return false;
-
-        const string pattern = @"^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$";
-        var regex = new Regex(pattern, RegexOptions.IgnoreCase);
-        return regex.IsMatch(value);
-    }
-}
-
-// For required field
-public class RequiredRule : ValidationRule<string?>
-{
-    public override string ErrorMessage => "Izz required!";
-
-    public override bool IsValid(string? value)
-    {
-        return !string.IsNullOrEmpty(value);
-    }
-}
-
-// If you want to limit the string to a certain length
-public class LengthRule : ValidationRule<string?>
-{
-    public override string ErrorMessage => string.Format(Strings.MaxCharacters, max);
-
-    private readonly int max;
-
-    public LengthRule(int max)
-    {
-        this.max = max;
-    }
-
-    public override bool IsValid(string? value)
+    public override bool IsValid(string value)
     {
         if (string.IsNullOrEmpty(value))
             return true;
 
-        return value.Length < max;
-    }
-}
-
-// A multi-property validation model. You can also reuse other ValidationRules here!
-public class AddressRule : MultiValidationRule<Address>
-{
-    protected override RuleCollection<Address> ConfigureRules(RuleCollection<Address> ruleCollection)
-    {
-        return ruleCollection
-            .AddRule(e => e.City, new RequiredRule())
-            .AddRule(e => e.CountryIsoCode, new CountryIsoCodeRule())
-            .AddRule(e => e.PostalCode, new PostalCodeRule())
-            .AddRule(e => e.StreetAddress, new RequiredRule(), new LengthRule(100));
+        // Use regular expression to check if the string contains only alphanumeric characters
+        const string pattern = "^[a-zA-Z0-9]*$";
+        return Regex.IsMatch(value, pattern);
     }
 }
 ```
+Now, you can use your custom validation rule in your validation service. Here's an example of how to use the `AlphanumericRule`:
 
+```csharp
+var validationService = new ValidationService();
 
-2. Use the validation rules in our classes that implements (implicitly from the base class) `INotifyPropertyChanged`.
-The example below is implemented in Xamarin Forms together with [Prism](https://github.com/PrismLibrary/Prism) library to register the service in the [DI](https://stackoverflow.com/q/130794/2304737) container, and [PropertyChanged.Fody](https://github.com/Fody/PropertyChanged) for automatic INPC generation of getters/setters.
-Take note that this library is not limited to Xamarin only, it's available to all platforms supported by .NET family.
-
-``` c#
-public class ItemsPageViewModel : BaseViewModel, IInitialize, INotifiableModel
-{
-    private readonly IValidationService validationService;
-
-    public ItemsPageViewModel(INavigationService navigationService, IValidationService validationService) : base(navigationService)
-    {
-        this.validationService = validationService;
-    }
-
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? EmailAddress { get; set; }
-    public Address PhysicalAddress { get; set; } = new Address();
-
-    // Important!
-    // You must register an "Errors" property in your ViewModel since it will be used later on XAML.
-    // This would contain all the active errors messages after each invocation of ValidationService#Validate()
-    public IDictionary<string, string?> Errors => validationService.GetErrors();
-
-    // Important!
-    // The ViewModel must implement INotifiableModel and must contain the code to manually raise
-    // the "PropertyChanged" event for "Errors" property.
-    public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
-
-    // You must do this only once in the initialization part of your class model.
-    public void Initialize(INavigationParameters parameters)
-    {
-        validationService.For(this)
-            .AddRule(e => e.FirstName, new RequiredRule())
-            .AddRule(e => e.LastName, new LengthRule(50))
-            .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
-            // The error message have been overriden to "Deez nuts" since an aggregated error messages is awful.
-            .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
-
-        validationService.PropertyInvalid += ValidationService_PropertyInvalid;
-    }
-
-    private void ValidationService_PropertyInvalid(object sender, ValidationResultArgs e)
-    {
-        // To retrieve all the error message of the property, use:
-        var errorMessages = e.ErrorMessages;
-    }
-}
+// Register your model for validation and include the custom rule
+validationService.For(this)
+    .AddRule(e => e.Username, new AlphanumericRule());
 ```
+By following these steps, you can create and use custom validation rules tailored to your specific validation needs in your PropertyValidator library.
 
-3. If you wish not to use `PropertyInvalid` event to check every time the property have changed, you can also invoke manually the `ValidationService::Validate()`, check the return. On the otherhand, you can also validate it with a more intuitive approach by doing `ValidationService#EnsurePropertiesAreValid()` which will throw a `PropertyException` where you can extract the error message from.
-
-``` c#
-
-// Using ValidationService::GetErrorMessage()
-private void Register1()
-{
-    if (!validationService.Validate())
-    {
-        ShowValidationResult();
-        return;
-    }
-    
-    // Proceed with the registration process.
-    ...
-}	
-
-// Using ValidationService::EnsurePropertiesAreValid()
-private void Register2()
-{
-    try
-    {
-        validationService.EnsurePropertiesAreValid();
-        // Proceed with the registration process.
-        ...
-    }
-    catch (Exception ex)
-    {
-        if (ex is PropertyException propertyException)
-        {
-            var firstError = propertyException.FirstError;
-            // Show the error to user by any means.
-            ...
-        }
-    }
-}
-
-// Using ValidationService#EnsurePropertiesAreValid()
-// plus ValidationResultArgs::Fill()
-private void Register3()
-{
-    try
-    {
-        validationService.EnsurePropertiesAreValid();
-        // Proceed with the registration process.
-        ...
-    }
-    catch (Exception ex)
-    {
-        if (ex is PropertyException propertyException)
-        {
-            var validationResult = propertyException.ValidationResultArgs;
-        }
-    }
-}
-```
-
-### Delay
-![Impatient UI](https://i.redd.it/emd3wuhfty361.png)
-
-Don't be this guy. To solve this, use **delay**!
-```c#
-validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
-    .AddRule(e => e.FirstName, new RequiredRule())
-    .AddRule(e => e.LastName, new LengthRule(50))
-    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule())
-    .AddRule(e => e.PhysicalAddress, "Deez nuts", new AddressRule()); 
-```
+## Getting Started
+1. Install the PropertyValidator library via NuGet.
+2. Create validation rule models by extending ValidationRule<T> or MultiValidationRule<T>, where T is the property type.
+3. Implement the library in your classes that implement INotifyPropertyChanged.
+4. Register your model for validation using the provided API.
+5. Optionally, handle validation errors using the PropertyInvalid event or manually check for errors.
 
 ## Support
-
-Feel free to contribute if you find some issues or you have more ideas to add :)
+Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
