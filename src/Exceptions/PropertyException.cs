@@ -1,15 +1,9 @@
 ﻿using PropertyValidator.Models;
 using System;
 
-namespace PropertyValidator.Exceptions
-{
-    public class PropertyException : Exception
-    {
-        public ValidationResultArgs ValidationResultArgs { get; }
+namespace PropertyValidator.Exceptions;
 
-        public PropertyException(ValidationResultArgs validationResultArgs) : base(validationResultArgs.FirstError)
-        {
-            ValidationResultArgs = validationResultArgs;
-        }
-    }
+public class PropertyException(ValidationResultArgs validationResultArgs) : Exception(validationResultArgs.FirstError)
+{
+    public ValidationResultArgs ValidationResultArgs { get; } = validationResultArgs;
 }

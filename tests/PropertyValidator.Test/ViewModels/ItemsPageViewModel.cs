@@ -48,7 +48,7 @@ namespace PropertyValidator.Test.ViewModels
                 .AddRule(e => e.PhysicalAddress, new AddressRule());
         }
 
-        public void NotifyPropertyChanged() => RaisePropertyChanged(nameof(Errors));
+        public void NotifyErrorPropertyChanged() => RaisePropertyChanged(nameof(Errors));
 
         private void Submit()
         {

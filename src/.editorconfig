@@ -3,6 +3,8 @@
 # You can learn more about editorconfig here: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference
 [*.cs]
 
+#Warn non file-scoped namespace
+csharp_style_namespace_declarations = file_scoped:warning
 
 #Core editorconfig formatting - indentation
 

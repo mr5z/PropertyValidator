@@ -1,68 +1,76 @@
 ﻿using ObservableProperty.Services;
 using PropertyValidator.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace PropertyValidator.Models
+namespace PropertyValidator.Models;
+
+public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnull
 {
-    public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnull
+    private IReadOnlyDictionary<string, IEnumerable<IValidationRule>>? validationRules;
+
+    private string? lastErrorMessage;
+
+    protected abstract IRuleCollection<T> ConfigureRules(IRuleCollection<T> ruleCollection);
+
+    public sealed override bool IsValid(T? value)
     {
-        private IReadOnlyDictionary<string, IEnumerable<IValidationRule>>? validationRules;
-
-        private readonly IDictionary<string, string?> lastErroredProperty = new Dictionary<string, string?>();
-
-        protected abstract IRuleCollection<T> ConfigureRules(IRuleCollection<T> ruleCollection);
-
-        public sealed override bool IsValid(T? value)
+        if (value == null)
         {
-            if (value == null)
+            // TODO what to do?
+            return false;
+        }
+
+        if (this.validationRules == null)
+        {
+            var actionCollection = new ActionCollection<T>();
+            var ruleCollection = new RuleCollection<T>(actionCollection, value);
+            this.validationRules = ConfigureRules(ruleCollection).GetRules();
+
+            if (value is INotifyPropertyChanged inpc)
             {
-                // TODO what to do?
-                return false;
+                inpc.PropertyChanged -= Target_PropertyChanged;
+                inpc.PropertyChanged += Target_PropertyChanged;
             }
-
-            if (this.validationRules == null)
-            {
-                var actionCollection = new ActionCollection<T>();
-                var ruleCollection = new RuleCollection<T>(actionCollection, value);
-                this.validationRules = ConfigureRules(ruleCollection).GetRules();
-
-                if (value is INotifyPropertyChanged inpc)
-                {
-                    inpc.PropertyChanged -= Target_PropertyChanged;
-                    inpc.PropertyChanged += Target_PropertyChanged;
-                }
-            }
-
-            return ValidationService.ValidateRuleCollection(
-                GetValidationRules(),
-                value
-            );
         }
 
-        private void Target_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        return ValidationService.ValidateRuleCollection(
+            GetValidationRules(),
+            value
+        );
+    }
+
+    private void Target_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        var dictionaryRules = GetValidationRules().Where(r => r.Key == e.PropertyName);
+        var listRules = dictionaryRules.SelectMany(it => it.Value);
+
+        var resultArgs = ValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
+
+        if (resultArgs.HasError)
         {
-            var dictionaryRules = GetValidationRules();
-            var listRules = dictionaryRules.Values.SelectMany(it => it);
-            var resultArgs = ValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
-
-            this.lastErroredProperty[e.PropertyName] = resultArgs.HasError ? e.PropertyName : null;
+            this.lastErrorMessage = $"{e.PropertyName}: {resultArgs.FirstError}";
         }
-
-        private IDictionary<string, IEnumerable<IValidationRule>> GetValidationRules()
+        else
         {
-            return this.validationRules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            this.lastErrorMessage = null;
         }
+    }
 
-        // TODO convert to List<string>
-        public sealed override string ErrorMessage => $"{{{string.Join(", ", ErrorsAsJsonString())}}}";
+    private IDictionary<string, IEnumerable<IValidationRule>> GetValidationRules()
+    {
+        return this.validationRules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    }
 
-        private IEnumerable<string?> ErrorsAsJsonString()
-        {
-            return this.validationRules
-                .SelectMany(it => it.Value)
-                .Select(e => $"\"{e.PropertyName}\":\"{e.Error}\"");
-        }
+    // TODO convert to List<string>
+    public sealed override string ErrorMessage => this.lastErrorMessage ?? $"{{{string.Join(", ", ErrorsAsJsonString())}}}";
+
+    private IEnumerable<string?> ErrorsAsJsonString()
+    {
+        return this.validationRules
+            .SelectMany(it => it.Value)
+            .Select(e => $"\"{e.PropertyName}\":\"{e.Error}\"");
     }
 }

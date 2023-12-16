@@ -2,6 +2,7 @@
 using PropertyValidator.Services;
 using PropertyValidator.Test.Pages;
 using PropertyValidator.Test.ViewModels;
+using PropertyValidator.ValidationPack;
 using System;
 using System.Threading.Tasks;
 
@@ -38,6 +39,7 @@ namespace PropertyValidator.Test
 
         private static Task ConfigureServices()
         {
+            ErrorMessageHelper.UpdateResource<ErrorMessages>();
             return Task.CompletedTask;
         }
 

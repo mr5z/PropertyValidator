@@ -1,7 +1,6 @@
-﻿namespace PropertyValidator.Models
+﻿namespace PropertyValidator.Models;
+
+public interface INotifiableModel
 {
-    public interface INotifiableModel
-    {
-        void NotifyErrorPropertyChanged();
-    }
+    void NotifyErrorPropertyChanged();
 }
