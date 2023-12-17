@@ -31,8 +31,8 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
 ```
 
 ### Xamarin Forms code example
-1. [ViewModel](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/ViewModels/ItemsPageViewModel.cs)
-2. [XAML](https://github.com/mr5z/PropertyValidator/blob/main/tests/PropertyValidator.Test/Pages/ItemsPage.xaml)
+1. [ViewModel](https://github.com/mr5z/Test.Maui/blob/main/Test.Maui/ViewModels/MainPageViewModel.cs)
+2. [XAML](https://github.com/mr5z/Test.Maui/blob/main/Test.Maui/Pages/MainPage.xaml)
 
 ## Features
 PropertyValidator offers a range of features to streamline your validation process:
