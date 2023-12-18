@@ -31,7 +31,7 @@ class ViewModel : INotifyPropertyChanged, INotifiableModel
     // I have only included this here for clarity. Substitute with your own implentation.
     private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        PropertyChanged?.Invoke(this, (new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 ```
