@@ -40,11 +40,11 @@ class ViewModel : INotifyPropertyChanged, INotifiableModel
 ```csharp
 var validationService = new ValidationService();
 
-// Register your model for validation
+// Register your INPC instance for validation
 validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
-    .AddRule(e => e.FirstName, new RequiredRule())
-    .AddRule(e => e.LastName, new LengthRule(50))
-    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
+    .AddRule(e => e.FirstName, new StringRequiredRule(), new MinLengthRule(2))
+    .AddRule(e => e.LastName, new StringRequiredRule(), new MaxLengthRule(5))
+    .AddRule(e => e.EmailAddress, new StringRequiredRule(), new EmailFormatRule(), new RangeLengthRule(10, 15))
 ```
 
 ### Consume in XAML
@@ -123,13 +123,6 @@ validationService.For(this)
     .AddRule(e => e.Username, new AlphanumericRule());
 ```
 By following these steps, you can create and use custom validation rules tailored to your specific validation needs in your PropertyValidator library.
-
-## Getting Started
-1. Install the PropertyValidator library via NuGet.
-2. Create validation rule models by extending ValidationRule<T> or MultiValidationRule<T>, where T is the property type.
-3. Implement the library in your classes that implement INotifyPropertyChanged.
-4. Register your model for validation using the provided API.
-5. Optionally, handle validation errors using the PropertyInvalid event or manually check for errors.
 
 ## Support
 Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
