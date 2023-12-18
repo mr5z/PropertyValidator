@@ -7,8 +7,8 @@ namespace PropertyValidator.Models;
 
 public interface IRuleCollection<TModel>
 {
-    IRuleCollection<TModel> AddRule<TProperty>
-        (Expression<Func<TModel, TProperty>> expression,
+    IRuleCollection<TModel> AddRule<TProperty>(
+        Expression<Func<TModel, TProperty>> expression,
         params ValidationRule<TProperty>[] rules);
 
     IRuleCollection<TModel> AddRule<TProperty>(

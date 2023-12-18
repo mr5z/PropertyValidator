@@ -9,11 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservableProperty", "..\..
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossUtility", "..\..\CrossUtility\src\CrossUtility.csproj", "{1F72C2A4-C8DD-40EC-AB44-AB3775A77D30}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{793B952C-03BE-4179-A75C-CC2FAFA1831F}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertyValidator.ValidationPack", "..\..\PropertyValidator.ValidationPack\src\PropertyValidator.ValidationPack.csproj", "{8BC24D46-48B3-4012-94C9-685785FD9C9E}"
 EndProject
 Global

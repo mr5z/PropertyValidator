@@ -26,6 +26,7 @@ public class ValidationService : IValidationService
     private bool IsInitialized => this.notifiableModel != null;
 
     private IDictionary<string, string?> recentErrors = null!;
+    private Func<IEnumerable<string?>, string>? errorFormatter = null;
 
     public event EventHandler<ValidationResultArgs>? PropertyInvalid;
 
@@ -177,7 +178,8 @@ public class ValidationService : IValidationService
         this.recentErrors.Clear();
         foreach (var entry in resultArgs.ErrorDictionary)
         {
-            this.recentErrors[entry.Key] = string.Join(", ", entry.Value);
+            var formattedMessage = (errorFormatter != null) ? errorFormatter.Invoke(entry.Value) : string.Join(", ", entry.Value);
+            this.recentErrors[entry.Key] = formattedMessage;
         }
 
         if (resultArgs.FirstError != null)
@@ -201,5 +203,10 @@ public class ValidationService : IValidationService
     public IDictionary<string, string?> GetErrors()
     {
         return this.recentErrors;
+    }
+
+    public void SetErrorFormatter(Func<IEnumerable<string?>, string> errorFormatter)
+    {
+        this.errorFormatter = errorFormatter;
     }
 }

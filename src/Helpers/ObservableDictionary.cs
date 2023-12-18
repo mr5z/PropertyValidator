@@ -10,7 +10,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace PropertyValidator.Helpers;
@@ -18,7 +17,7 @@ namespace PropertyValidator.Helpers;
 /// <summary>An implementation of an observable dictionary.</summary>
 /// <typeparam name="TKey">The type of the key.</typeparam>
 /// <typeparam name="TValue">The type of the value.</typeparam>
-public class ObservableDictionary<TKey, TValue> :
+internal class ObservableDictionary<TKey, TValue> :
     IDictionary<TKey, TValue>, INotifyCollectionChanged,
     INotifyPropertyChanged, IDictionary, IReadOnlyDictionary<TKey, TValue>
 {
