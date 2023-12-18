@@ -40,11 +40,11 @@ class ViewModel : INotifyPropertyChanged, INotifiableModel
 ```csharp
 var validationService = new ValidationService();
 
-// Register your model for validation
+// Register your INPC instance for validation
 validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
-    .AddRule(e => e.FirstName, new RequiredRule())
-    .AddRule(e => e.LastName, new LengthRule(50))
-    .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
+    .AddRule(e => e.FirstName, new StringRequiredRule(), new MinLengthRule(2))
+    .AddRule(e => e.LastName, new StringRequiredRule(), new MaxLengthRule(5))
+    .AddRule(e => e.EmailAddress, new StringRequiredRule(), new EmailFormatRule(), new RangeLengthRule(10, 15))
 ```
 
 ### Consume in XAML
