@@ -14,13 +14,30 @@ Install-Package PropertyValidator
 ```
 
 ## Example Usage
-Here's an example of how to use PropertyValidator in your code:
+
+### Prepare INPC class
 
 ```csharp
 using PropertyValidator;
 
-// ...
+class ViewModel : INotifyPropertyChanged, INotifiableModel
+{
+    // We are just converting the function to readonly property. This will be accessed by XAML later.
+    public IDictionary<string, string?> Errors => validationService.GetErrors();
 
+    // Implement INotifiableModel so it propagates changes to XAML
+    public void NotifyErrorPropertyChanged() => RaisePropertyChanged(nameof(Errors));
+
+    // I have only included this here for clarity. Substitute with your own implentation.
+    private void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, (new PropertyChangedEventArgs(propertyName));
+    }
+}
+```
+
+### Setup INPC class in its initialization code
+```csharp
 var validationService = new ValidationService();
 
 // Register your model for validation
@@ -30,9 +47,24 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
     .AddRule(e => e.EmailAddress, new RequiredRule(), new LengthRule(100), new EmailFormatRule());
 ```
 
-### Xamarin Forms code example
-1. [ViewModel](https://github.com/mr5z/Test.Maui/blob/main/Test.Maui/ViewModels/MainPageViewModel.cs)
-2. [XAML](https://github.com/mr5z/Test.Maui/blob/main/Test.Maui/Pages/MainPage.xaml)
+### Consume in XAML
+```xaml
+<Entry
+    Text="{Binding EmailAddress}"
+    Keyboard="Email"
+    Placeholder="Email address" />
+<Label
+    Text="{Binding Errors[EmailAddress]}"
+    TextColor="Red"
+    FontSize="Small" />
+```
+
+### Result
+![image](https://github.com/mr5z/PropertyValidator/assets/6318395/9e26f615-0085-4140-ba90-b54e24fe0e71)
+
+
+### MAUI complete example:
+[Test.Maui](https://github.com/mr5z/Test.Maui/blob/main/Test.Maui)
 
 ## Features
 PropertyValidator offers a range of features to streamline your validation process:
