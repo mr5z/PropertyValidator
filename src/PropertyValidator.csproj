@@ -7,15 +7,15 @@
     <Authors>Mark Laureta</Authors>
     <Company>Nkraft</Company>
     <Description>A simple library to help you validate properties of class that implements INotifyPropertyChanged.</Description>
-    <PackageReleaseNotes>- Remove autofill and made it the default behavior.
-- Add dictionary of errors so that the ViewModel doesn't need to provide its own error properties.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Code refactors and minor improvements.</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/mr5z/PropertyValidator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mr5z/PropertyValidator</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <FileVersion>1.1.0.0</FileVersion>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <Version>1.1.0.0</Version>
+    <FileVersion>1.1.0.1</FileVersion>
+    <AssemblyVersion>1.1.0.1</AssemblyVersion>
+    <Version>1.1.0.1</Version>
     <NeutralLanguage>en</NeutralLanguage>
+    <Copyright>Copyright (c) 2023 Mark Laureta. All rights reserved.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
