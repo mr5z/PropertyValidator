@@ -57,13 +57,13 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
     Text="{Binding Errors[EmailAddress]}"
     TextColor="Red"
     FontSize="Small" />
+...
 ```
 
 ### Result
-![image](https://github.com/mr5z/PropertyValidator/assets/6318395/9e26f615-0085-4140-ba90-b54e24fe0e71)
+![output](https://github.com/mr5z/PropertyValidator/assets/6318395/410f7c92-e76e-4a80-b309-d0dd0bc1afbd)
 
-
-### MAUI complete example:
+### MAUI complete example
 [Test.Maui](https://github.com/mr5z/Test.Maui)
 
 ## Features
