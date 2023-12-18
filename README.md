@@ -64,7 +64,7 @@ validationService.For(this, delay: TimeSpan.FromSeconds(0.7))
 
 
 ### MAUI complete example:
-[Test.Maui](https://github.com/mr5z/Test.Maui/blob/main/Test.Maui)
+[Test.Maui](https://github.com/mr5z/Test.Maui)
 
 ## Features
 PropertyValidator offers a range of features to streamline your validation process:
