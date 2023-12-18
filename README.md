@@ -124,12 +124,5 @@ validationService.For(this)
 ```
 By following these steps, you can create and use custom validation rules tailored to your specific validation needs in your PropertyValidator library.
 
-## Getting Started
-1. Install the PropertyValidator library via NuGet.
-2. Create validation rule models by extending ValidationRule<T> or MultiValidationRule<T>, where T is the property type.
-3. Implement the library in your classes that implement INotifyPropertyChanged.
-4. Register your model for validation using the provided API.
-5. Optionally, handle validation errors using the PropertyInvalid event or manually check for errors.
-
 ## Support
 Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
