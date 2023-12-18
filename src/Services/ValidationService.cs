@@ -75,10 +75,8 @@ public class ValidationService : IValidationService
 
         var resultArgs = GetValidationResultArgs(propertyName, value, propertyRules);
         this.recentErrors[propertyName] = null;
-        foreach (var entry in resultArgs.ErrorDictionary)
-        {
-            this.recentErrors[entry.Key] = string.Join(", ", entry.Value);
-        }
+
+        UpdateRecentErrors(resultArgs);
 
         PropertyInvalid?.Invoke(this, resultArgs);
     }
@@ -170,17 +168,23 @@ public class ValidationService : IValidationService
             throw new InvalidOperationException($"Please use '{nameof(For)}(<target object>)' before invoking {methodCaller}.");
     }
 
+    private void UpdateRecentErrors(ValidationResultArgs resultArgs)
+    {
+        foreach (var entry in resultArgs.ErrorDictionary)
+        {
+            var formattedMessage = (this.errorFormatter != null) ? this.errorFormatter.Invoke(entry.Value) : string.Join(", ", entry.Value);
+            this.recentErrors[entry.Key] = formattedMessage;
+        }
+    }
+
     public void EnsurePropertiesAreValid()
     {
         EnsureEntryMethodInvoked();
 
         var resultArgs = GetValidationResultArgs(this.notifiableModel!, GetRules());
         this.recentErrors.Clear();
-        foreach (var entry in resultArgs.ErrorDictionary)
-        {
-            var formattedMessage = (errorFormatter != null) ? errorFormatter.Invoke(entry.Value) : string.Join(", ", entry.Value);
-            this.recentErrors[entry.Key] = formattedMessage;
-        }
+
+        UpdateRecentErrors(resultArgs);
 
         if (resultArgs.FirstError != null)
             throw new PropertyException(resultArgs);
