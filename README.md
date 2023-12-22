@@ -122,7 +122,7 @@ var validationService = new ValidationService();
 validationService.For(this)
     .AddRule(e => e.Username, new AlphanumericRule());
 ```
-By following these steps, you can create and use custom validation rules tailored to your specific validation needs in your PropertyValidator library.
+By following these steps, you can create and use custom validation rules tailored to your specific validation needs in your project.
 
 ## Support
 Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
