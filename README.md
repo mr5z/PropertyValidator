@@ -2,6 +2,7 @@
 [![NuGet Pre-release](https://img.shields.io/nuget/vpre/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/)
 [![GitHub Release](https://img.shields.io/github/release/mr5z/PropertyValidator.svg?style=flat)](https://github.com/mr5z/PropertyValidator/packages/385702)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/PropertyValidator.svg)](https://www.nuget.org/packages/PropertyValidator/)
+[![.NET](https://github.com/mr5z/PropertyValidator/actions/workflows/dotnet.yml/badge.svg)](https://github.com/mr5z/PropertyValidator/actions/workflows/dotnet.yml)
 
 PropertyValidator is a versatile library designed to simplify property validation for classes that implement the `INotifyPropertyChanged` interface. It offers a straightforward way to define and apply validation rules to properties, making it easier to ensure the integrity of your data.
 
