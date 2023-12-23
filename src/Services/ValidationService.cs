@@ -6,7 +6,6 @@ using PropertyValidator.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -18,6 +17,7 @@ namespace PropertyValidator.Services;
 public class ValidationService : IValidationService
 {
     private object? notifiableModel;
+    private bool autofill;
     private TimeSpan? delay;
 
     private CancellationTokenSource? cts;
@@ -26,12 +26,13 @@ public class ValidationService : IValidationService
     private bool IsInitialized => this.notifiableModel != null;
 
     private IDictionary<string, string?> recentErrors = null!;
-    private Func<IEnumerable<string?>, string>? errorFormatter = null;
+    private Func<IEnumerable<string?>, string>? errorFormatter;
 
     public event EventHandler<ValidationResultArgs>? PropertyInvalid;
 
     public IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
+        bool autofill,
         TimeSpan? delay)
         where TNotifiableModel : INotifyPropertyChanged, INotifiableModel
     {
@@ -39,6 +40,7 @@ public class ValidationService : IValidationService
             throw new InvalidOperationException($"'{nameof(For)}' may only be called once.");
 
         this.notifiableModel = notifiableModel;
+        this.autofill = autofill;
         this.delay = delay;
 
         return BuildRuleCollection(notifiableModel);
@@ -57,7 +59,13 @@ public class ValidationService : IValidationService
         this.methodInfo = type.GetMethod(nameof(RuleCollection<INotifyPropertyChanged>.GetRules));
         this.recentErrors = recentErrors;
 
-        collection.ValidationResult += (sender, e) => ValidateByProperty(e.Name, e.Value).FireAndForget();
+        collection.ValidationResult += (sender, e) =>
+        {
+            if (autofill)
+            {
+                ValidateByProperty(e.Name, e.Value).FireAndForget();
+            }
+        };
         recentErrors.CollectionChanged += (sender, e) => model.NotifyErrorPropertyChanged();
 
         return collection;
@@ -95,7 +103,7 @@ public class ValidationService : IValidationService
             errorDictionary[propertyName] = errorMessages;
         }
 
-        return new ValidationResultArgs(propertyName, errorDictionary);
+        return new ValidationResultArgs(errorDictionary);
     }
 
     private static ValidationResultArgs GetValidationResultArgs(
@@ -128,14 +136,15 @@ public class ValidationService : IValidationService
             }
         }
 
-        return new ValidationResultArgs(null, errorDictionary);
+        return new ValidationResultArgs(errorDictionary);
     }
 
-    private static IEnumerable<string> ValidatePropertyValue(IEnumerable<IValidationRule> rules, object? value)
+    private static IReadOnlyCollection<string> ValidatePropertyValue(IEnumerable<IValidationRule> rules, object? value)
     {
         return rules
             .Where(rule => !rule.Validate(value))
-            .Select(rule => rule.Error);
+            .Select(rule => rule.Error)
+            .ToArray();
     }
 
     private async Task<bool> ShouldCancel()

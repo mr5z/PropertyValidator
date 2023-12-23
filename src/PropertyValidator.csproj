@@ -23,9 +23,19 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Remove="tests\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CrossUtility\src\CrossUtility.csproj" />
     <ProjectReference Include="..\..\ObservableProperty\src\ObservableProperty.csproj" />
   </ItemGroup>
 
