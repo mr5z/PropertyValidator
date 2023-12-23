@@ -26,7 +26,7 @@ jobs:
     - name: Clone dependencies
       run: cd ../../ && echo CrossUtility ObservableProperty PropertyValidator.ValidationPack | xargs -n1 | xargs -I{} git clone https://github.com/mr5z/{}
     - name: Restore dependencies
-      run: ls ../../ && dotnet restore
+      run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
     - name: Test
