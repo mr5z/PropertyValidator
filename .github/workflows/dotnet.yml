@@ -27,6 +27,8 @@ jobs:
       run: pwd
     - name: Test - Clone repos
       run: cd ../../ && git clone https://github.com/mr5z/CrossUtility.git && git clone https://github.com/mr5z/ObservableProperty.git && git clone https://github.com/mr5z/PropertyValidator.ValidationPack.git && pwd && ls -al
+    - name: File check
+      run: [ ! -f "/home/runner/work/PropertyValidator/ObservableProperty/src/ObservableProperty.csproj" ] && echo "File not found!"
     - name: Restore dependencies
       run: ls ../../ && dotnet restore
     - name: Build
