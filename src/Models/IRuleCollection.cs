@@ -9,23 +9,23 @@ public interface IRuleCollection<TModel>
 {
     IRuleCollection<TModel> AddRule<TProperty>(
         Expression<Func<TModel, TProperty>> expression,
-        params ValidationRule<TProperty>[] rules);
+        params IValidationRule[] rules);
 
     IRuleCollection<TModel> AddRule<TProperty>(
         [NotNull]
         string propertyName,
-        params ValidationRule<TProperty>[] rules);
+        params IValidationRule[] rules);
 
     IRuleCollection<TModel> AddRule<TProperty>(
         Expression<Func<TModel, TProperty>> expression,
         string? errorMessageOverride,
-        params ValidationRule<TProperty>[] rules);
+        params IValidationRule[] rules);
 
     IRuleCollection<TModel> AddRule<TProperty>(
         [NotNull]
         string propertyName,
         string? errorMessageOverride,
-        params ValidationRule<TProperty>[] rules);
+        params IValidationRule[] rules);
 
     IReadOnlyDictionary<string, IEnumerable<IValidationRule>> GetRules();
 }

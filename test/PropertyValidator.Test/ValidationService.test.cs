@@ -1,3 +1,4 @@
+using PropertyValidator.Exceptions;
 using PropertyValidator.Models;
 using PropertyValidator.Services;
 using PropertyValidator.ValidationPack;
@@ -8,7 +9,7 @@ public class Tests
 {
     public class DummyViewModel : INotifiableModel, System.ComponentModel.INotifyPropertyChanged
     {
-        public void NotifyErrorPropertyChanged() => throw new NotImplementedException();
+        public void NotifyErrorPropertyChanged() { }
         public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
         public string? Value { get; set; }
     }
@@ -107,6 +108,56 @@ public class Tests
         Assert.That(result, Is.EqualTo(true), $"Didn't succeed because vb.Value: '{vm.Value}', length: {vm.Value?.Length}");
     }
 
+    [Test, Description("ValidationService.PropertyInvalid must be invoked upon violation of property rules.")]
+    public async Task MustInvokePropertyInvalidEvent()
+    {
+        var vm = new DummyViewModel { Value = "something" };
+        
+        validationService
+            .For(vm)
+            .AddRule(e => e.Value, new StringRequiredRule());
+
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+        var tcs = new TaskCompletionSource<bool>();
+        cts.Token.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
+
+        validationService.PropertyInvalid += PropertyInvalid;
+        
+        vm.Value = null;
+
+        var result = await tcs.Task;
+
+        void PropertyInvalid(object? sender, ValidationResultArgs e)
+        {
+            tcs.SetResult(e.HasError);
+        }
+
+        Assert.That(result, Is.EqualTo(true), $"Didn't succeed because result from PropertyInvalid is not expected.");
+    }
+    
+    [Test, Description("ValidationService.EnsurePropertiesAreValid() must throw Exception.")]
+    [TestCaseSource(nameof(DummyViewModelFixturesXRule))]
+    public void MustEnsurePropertiesAreInvalid(DummyViewModel vm, IValidationRule rule)
+    {
+        validationService
+            .For(vm)
+            .AddRule(e => e.Value, rule);
+
+        bool result;
+
+        try
+        {
+            validationService.EnsurePropertiesAreValid();
+            result = false;
+        }
+        catch (Exception e)
+        {
+            result = e is PropertyException;
+        }
+        
+        Assert.That(result, Is.EqualTo(true), $"Didn't succeed because EnsurePropertiesAreValid() didn't throw.");
+    }
+
     private static IEnumerable<TestCaseData> DummyViewModelFixturesStringRequiredRule
     {
         get
@@ -124,6 +175,17 @@ public class Tests
             yield return new TestCaseData(new DummyViewModel { Value = "a" }, new RangeLengthRule(1, 1));
             yield return new TestCaseData(new DummyViewModel { Value = "12345" }, new RangeLengthRule(5, 10));
             yield return new TestCaseData(new DummyViewModel { Value = "1234567890+2" }, new RangeLengthRule(10, 20));
+        }
+    }
+
+    private static IEnumerable<TestCaseData> DummyViewModelFixturesXRule
+    {
+        get
+        {
+            yield return new TestCaseData(new DummyViewModel { Value = null }, new StringRequiredRule());
+            yield return new TestCaseData(new DummyViewModel { Value = "1234" }, new RangeLengthRule(5, 10));
+            yield return new TestCaseData(new DummyViewModel { Value = "12345+1" }, new MaxLengthRule(5));
+            yield return new TestCaseData(new DummyViewModel { Value = "123" }, new MinLengthRule(5));
         }
     }
 }
