@@ -23,18 +23,28 @@ public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnu
             return false;
         }
 
-        if (this.validationRules == null)
+        if (this.validationRules != null)
         {
-            var actionCollection = new ActionCollection<T>();
-            var ruleCollection = new RuleCollection<T>(actionCollection, value);
-            this.validationRules = ConfigureRules(ruleCollection).GetRules();
-
-            if (value is INotifyPropertyChanged inpc)
-            {
-                inpc.PropertyChanged -= Target_PropertyChanged;
-                inpc.PropertyChanged += Target_PropertyChanged;
-            }
+            return ValidationService.ValidateRuleCollection(
+                GetValidationRules(),
+                value
+            );
         }
+
+        var actionCollection = new ActionCollection<T>();
+        var ruleCollection = new RuleCollection<T>(actionCollection, value);
+        this.validationRules = ConfigureRules(ruleCollection).GetRules();
+
+        if (value is not INotifyPropertyChanged inpc)
+        {
+            return ValidationService.ValidateRuleCollection(
+                GetValidationRules(),
+                value
+            );
+        }
+
+        inpc.PropertyChanged -= Target_PropertyChanged;
+        inpc.PropertyChanged += Target_PropertyChanged;
 
         return ValidationService.ValidateRuleCollection(
             GetValidationRules(),
@@ -49,14 +59,7 @@ public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnu
 
         var resultArgs = ValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
 
-        if (resultArgs.HasError)
-        {
-            this.lastErrorMessage = $"{e.PropertyName}: {resultArgs.FirstError}";
-        }
-        else
-        {
-            this.lastErrorMessage = null;
-        }
+        this.lastErrorMessage = resultArgs.HasError ? $"{e.PropertyName}: {resultArgs.FirstError}" : null;
     }
 
     private IDictionary<string, IEnumerable<IValidationRule>> GetValidationRules()

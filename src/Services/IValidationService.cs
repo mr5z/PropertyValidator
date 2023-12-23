@@ -17,6 +17,7 @@ public interface IValidationService
     /// <returns>RuleCollection so that it can be chained.</returns>
     IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
+        bool autofill = true,
         TimeSpan? delay = null)
         where TNotifiableModel : INotifyPropertyChanged, INotifiableModel;
 
