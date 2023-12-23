@@ -82,6 +82,7 @@ public class ValidationService : IValidationService
             throw new InvalidOperationException($"'{propertyName}' is not registered to validation rules.");
 
         var resultArgs = GetValidationResultArgs(propertyName, value, propertyRules);
+
         this.recentErrors[propertyName] = null;
 
         UpdateRecentErrors(resultArgs);

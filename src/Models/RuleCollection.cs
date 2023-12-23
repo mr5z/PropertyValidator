@@ -36,26 +36,26 @@ public class RuleCollection<TModel>(ActionCollection<TModel> actionCollection, o
 
     public IRuleCollection<TModel> AddRule<TProperty>(
         Expression<Func<TModel, TProperty>> expression,
-        params ValidationRule<TProperty>[] rules)
+        params IValidationRule[] rules)
     {
         return AddRule(expression, null, rules);
     }
 
     public IRuleCollection<TModel> AddRule<TProperty>(
         [NotNull] string propertyName,
-        params ValidationRule<TProperty>[] rules)
+        params IValidationRule[] rules)
     {
-        return AddRule(propertyName, null, rules);
+        return AddRule<TProperty>(propertyName, null, rules);
     }
 
     public IRuleCollection<TModel> AddRule<TProperty>(
         Expression<Func<TModel, TProperty>> expression,
         string? errorMessageOverride,
-        params ValidationRule<TProperty>[] rules)
+        params IValidationRule[] rules)
     {
         var propertyName = expression.GetMemberName();
         var propInfo = expression.GetPropertyInfo();
-        var result = AddRule(propertyName, errorMessageOverride, rules);
+        var result = AddRule<TProperty>(propertyName, errorMessageOverride, rules);
         var value = propInfo.GetValue(this.target, null);
         if (value is INotifyPropertyChanged notifiableObject)
         {
@@ -68,13 +68,13 @@ public class RuleCollection<TModel>(ActionCollection<TModel> actionCollection, o
     public IRuleCollection<TModel> AddRule<TProperty>(
         [NotNull] string propertyName,
         string? errorMessageOverride,
-        params ValidationRule<TProperty>[] rules)
+        params IValidationRule[] rules)
     {
-        RegisterRuleFor(propertyName, errorMessageOverride, rules);
+        RegisterRuleFor<TProperty>(propertyName, errorMessageOverride, rules);
         return this;
     }
 
-    private void RegisterRuleFor<TProperty>(string propertyName, string? errorMessageOverride, params ValidationRule<TProperty>[] rules)
+    private void RegisterRuleFor<TProperty>(string propertyName, string? errorMessageOverride, params IValidationRule[] rules)
     {
         Array.ForEach(rules, rule => {
             rule.PropertyName = propertyName;
