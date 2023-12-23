@@ -27,15 +27,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ObservableProperty\src\ObservableProperty.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="tests\**" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CrossUtility\src\CrossUtility.csproj" />
+    <ProjectReference Include="..\..\ObservableProperty\src\ObservableProperty.csproj" />
   </ItemGroup>
 
 </Project>
