@@ -26,7 +26,7 @@ jobs:
     - name: Test - Check current working directory
       run: pwd
     - name: Test - Clone repos
-      run: cd ../ && https://github.com/mr5z/CrossUtility.git && https://github.com/mr5z/ObservableProperty.git && git clone https://github.com/mr5z/PropertyValidator.ValidationPack.git && pwd && cd src
+      run: cd ../ && git clone https://github.com/mr5z/CrossUtility.git && git clone https://github.com/mr5z/ObservableProperty.git && git clone https://github.com/mr5z/PropertyValidator.ValidationPack.git && pwd && cd src
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
