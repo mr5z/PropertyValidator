@@ -31,6 +31,8 @@ jobs:
       run: |
         if [ ! -f "/home/runner/work/PropertyValidator/ObservableProperty/src/ObservableProperty.csproj" ]; then
           echo "File not found!"
+          cd "/home/runner/work/PropertyValidator/ObservableProperty"
+          ls -al
         fi
     - name: Restore dependencies
       run: ls ../../ && dotnet restore
