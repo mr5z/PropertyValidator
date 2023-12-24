@@ -26,9 +26,9 @@ public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnu
         if (this.validationRules != null)
         {
             return ValidationService.ValidateRuleCollection(
-                GetValidationRules(),
-                value
-            );
+                value,
+                GetValidationRules()
+            ).HasError == false;
         }
 
         var actionCollection = new ActionCollection<T>();
@@ -38,18 +38,18 @@ public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnu
         if (value is not INotifyPropertyChanged inpc)
         {
             return ValidationService.ValidateRuleCollection(
-                GetValidationRules(),
-                value
-            );
+                value,
+                GetValidationRules()
+            ).HasError == false;
         }
 
         inpc.PropertyChanged -= Target_PropertyChanged;
         inpc.PropertyChanged += Target_PropertyChanged;
 
         return ValidationService.ValidateRuleCollection(
-            GetValidationRules(),
-            value
-        );
+            value,
+            GetValidationRules()
+        ).HasError == false;
     }
 
     private void Target_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -57,14 +57,14 @@ public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnu
         var dictionaryRules = GetValidationRules().Where(r => r.Key == e.PropertyName);
         var listRules = dictionaryRules.SelectMany(it => it.Value);
 
-        var resultArgs = ValidationService.GetValidationResultArgs(e.PropertyName, null, listRules!);
+        var resultArgs = ValidationService.ValidateRuleCollection(e.PropertyName, null, listRules!);
 
         this.lastErrorMessage = resultArgs.HasError ? $"{e.PropertyName}: {resultArgs.FirstError}" : null;
     }
 
     private IDictionary<string, IEnumerable<IValidationRule>> GetValidationRules()
     {
-        return this.validationRules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        return this.validationRules!.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
     // TODO convert to List<string>
@@ -72,7 +72,7 @@ public abstract class MultiValidationRule<T> : ValidationRule<T> where T : notnu
 
     private IEnumerable<string?> ErrorsAsJsonString()
     {
-        return this.validationRules
+        return this.validationRules!
             .SelectMany(it => it.Value)
             .Select(e => $"\"{e.PropertyName}\":\"{e.Error}\"");
     }

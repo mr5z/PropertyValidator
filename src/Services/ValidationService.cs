@@ -81,7 +81,7 @@ public class ValidationService : IValidationService
         if (!validationRules.TryGetValue(propertyName, out var propertyRules))
             throw new InvalidOperationException($"'{propertyName}' is not registered to validation rules.");
 
-        var resultArgs = GetValidationResultArgs(propertyName, value, propertyRules);
+        var resultArgs = ValidateRuleCollection(propertyName, value, propertyRules);
 
         this.recentErrors[propertyName] = null;
 
@@ -90,7 +90,7 @@ public class ValidationService : IValidationService
         PropertyInvalid?.Invoke(this, resultArgs);
     }
 
-    internal static ValidationResultArgs GetValidationResultArgs(
+    internal static ValidationResultArgs ValidateRuleCollection(
         string propertyName,
         object? propertyValue,
         IEnumerable<IValidationRule> validatedRules)
@@ -107,37 +107,25 @@ public class ValidationService : IValidationService
         return new ValidationResultArgs(errorDictionary);
     }
 
-    private static ValidationResultArgs GetValidationResultArgs(
+    internal static ValidationResultArgs ValidateRuleCollection(
         object target,
         IDictionary<string, IEnumerable<IValidationRule>> validationRules)
     {
-        var type = target.GetType();
         var errorDictionary = new Dictionary<string, IEnumerable<string?>>();
 
-        foreach (var entry in validationRules)
+        foreach (var (propertyName, rules) in validationRules)
         {
-            var (propertyName, rules) = entry;
-            var property = type.GetProperty(propertyName);
-            
-            if (property == null)
-                throw new InvalidOperationException($"Invalid state: '{propertyName}' cannot be access.");
-            
-            var value = property.GetValue(target);
+            var property = target.GetType().GetProperty(propertyName)
+                ?? throw new InvalidOperationException($"'{target.GetType().Name}.{propertyName}' cannot be accessed.");
 
+            var value = property.GetValue(target);
             var errorMessages = ValidatePropertyValue(rules, value);
 
-            if (!errorMessages.Any())
+            if (errorMessages.Any())
             {
-                continue;
-            }
-
-            if (errorDictionary.TryGetValue(propertyName, out var oldList))
-            {
-                errorDictionary[propertyName] = oldList.Concat(errorMessages);
-            }
-            else
-            {
-                errorDictionary[propertyName] = errorMessages;
+                errorDictionary[propertyName] = errorDictionary.TryGetValue(propertyName, out var oldList)
+                    ? oldList.Concat(errorMessages)
+                    : errorMessages;
             }
         }
 
@@ -186,7 +174,9 @@ public class ValidationService : IValidationService
     {
         foreach (var entry in resultArgs.ErrorDictionary)
         {
-            var formattedMessage = (this.errorFormatter != null) ? this.errorFormatter.Invoke(entry.Value) : string.Join(", ", entry.Value);
+            var formattedMessage = (this.errorFormatter != null)
+                ? this.errorFormatter.Invoke(entry.Value)
+                : string.Join(", ", entry.Value);
             this.recentErrors[entry.Key] = formattedMessage;
         }
     }
@@ -195,7 +185,7 @@ public class ValidationService : IValidationService
     {
         EnsureEntryMethodInvoked();
 
-        var resultArgs = GetValidationResultArgs(this.notifiableModel!, GetRules());
+        var resultArgs = ValidateRuleCollection(this.notifiableModel!, GetRules());
         this.recentErrors.Clear();
 
         UpdateRecentErrors(resultArgs);
@@ -207,15 +197,11 @@ public class ValidationService : IValidationService
     public bool Validate()
     {
         EnsureEntryMethodInvoked();
-        return ValidateRuleCollection(GetRules(), this.notifiableModel!);
-    }
-
-    internal static bool ValidateRuleCollection(
-        IDictionary<string, IEnumerable<IValidationRule>> ruleCollection,
-        object target)
-    {
-        var resultArgs = GetValidationResultArgs(target, ruleCollection);
-        return !resultArgs.HasError;
+        
+        var result = ValidateRuleCollection(this.notifiableModel!, GetRules());
+        UpdateRecentErrors(result);
+        
+        return !result.HasError;
     }
 
     public IDictionary<string, string?> GetErrors()

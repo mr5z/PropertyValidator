@@ -1,3 +1,4 @@
+using CrossUtility.Extensions;
 using PropertyValidator.Exceptions;
 using PropertyValidator.Models;
 using PropertyValidator.Services;
@@ -22,7 +23,7 @@ public class Tests
         validationService = new ValidationService();
     }
 
-    [Test, Description("ValidationService.Validate() must throw Exception if not setup properly.")]
+    [Test, Description("Validate() must throw Exception if not setup properly.")]
     public void MustThrowWhenNotConfigured()
     {
         var ex1 = new Exception("This shouldn't be thrown.");
@@ -38,7 +39,7 @@ public class Tests
         }
     }
 
-    [Test, Description("Calling ValidationService.For() multiple times should throw an Exception.")]
+    [Test, Description("Calling For() multiple times should throw an Exception.")]
     public void MustThrowForMultipleCalls()
     {
         var ex1 = new Exception("This shouldn't be thrown.");
@@ -56,7 +57,7 @@ public class Tests
         }
     }
 
-    [Test, Description("ValidationService.Validate() must not throw Exception if setup properly.")]
+    [Test, Description("Validate() must not throw Exception if setup properly.")]
     public void MustNotThrowWhenConfigured()
     {
         var ex1 = new Exception("This shouldn't be thrown.");
@@ -72,7 +73,7 @@ public class Tests
         }
     }
 
-    [Test, Description("ValidationService.Validate() must return false if property rule is violated.")]
+    [Test, Description("Validate() must return false if property rule is violated.")]
     public void MustValidatePropertyRuleToFalse()
     {
         var vm = new DummyViewModel();
@@ -86,7 +87,7 @@ public class Tests
         Assert.That(result, Is.EqualTo(false));
     }
 
-    [Test, Description("ValidationService.Validate() must return true if property rule is not violated.")]
+    [Test, Description("Validate() must return true if property rule is not violated.")]
     public void MustValidatePropertyRuleToTrue()
     {
         var vm = new DummyViewModel();
@@ -101,7 +102,7 @@ public class Tests
         Assert.That(result, Is.EqualTo(true));
     }
 
-    [Test, Description("ValidationService.Validate() must validate for StringRequired() rule.")]
+    [Test, Description("Validate() must validate for StringRequired() rule.")]
     [TestCaseSource(nameof(DummyViewModelFixturesStringRequiredRule))]
     public void MustValidateStringRequiredRule(DummyViewModel vm)
     {
@@ -114,7 +115,7 @@ public class Tests
         Assert.That(result, Is.EqualTo(true));
     }
 
-    [Test, Description("ValidationService.Validate() must validate for RangeLengthRule() rule.")]
+    [Test, Description("Validate() must validate for RangeLengthRule() rule.")]
     [TestCaseSource(nameof(DummyViewModelFixturesRangeLengthRule))]
     public void MustValidateRangeLengthRule(DummyViewModel vm, RangeLengthRule rule)
     {
@@ -127,7 +128,7 @@ public class Tests
         Assert.That(result, Is.EqualTo(true), $"Didn't succeed because vb.Value: '{vm.Value}', length: {vm.Value?.Length}");
     }
 
-    [Test, Description("ValidationService.PropertyInvalid must be invoked upon violation of property rules.")]
+    [Test, Description("PropertyInvalid must be invoked upon violation of property rules.")]
     public async Task MustInvokePropertyInvalidEvent()
     {
         var vm = new DummyViewModel { Value = "something" };
@@ -154,7 +155,7 @@ public class Tests
         Assert.That(result, Is.EqualTo(true), $"Didn't succeed because result from PropertyInvalid is not expected.");
     }
     
-    [Test, Description("ValidationService.EnsurePropertiesAreValid() must throw Exception.")]
+    [Test, Description("EnsurePropertiesAreValid() must throw Exception.")]
     [TestCaseSource(nameof(DummyViewModelFixturesXRule))]
     public void MustEnsurePropertiesAreInvalid(DummyViewModel vm, IValidationRule rule)
     {
@@ -175,6 +176,73 @@ public class Tests
         }
         
         Assert.That(result, Is.EqualTo(true), $"Didn't succeed because EnsurePropertiesAreValid() didn't throw.");
+    }
+
+    [Test, Description("GetErrors() must include error messages from registered property rule.")]
+    public void MustFetchCorrectErrorMessages()
+    {
+        var vm = new DummyViewModel();
+        var rule = new StringRequiredRule();
+
+        validationService.For(vm)
+            .AddRule(e => vm.Value, rule);
+
+        _ = validationService.Validate();
+
+        var errorMessages = validationService.GetErrors()
+            .Where(e => !string.IsNullOrEmpty(e.Value))
+            .Select(kvp => kvp.Value);
+
+        Assert.That(errorMessages, Contains.Item(rule.ErrorMessage));
+    }
+
+    [Test, Description("EnsurePropertiesAreValid() must throw and contains expected ValidationResultArgs.")]
+    public void MustContainExpectedValidationResultArgs()
+    {
+        var vm = new DummyViewModel();
+        var rule = new StringRequiredRule();
+
+        validationService.For(vm)
+            .AddRule(e => vm.Value, rule);
+
+        var notEx = new Exception("this shouldn't be thrown");
+        try
+        {
+            validationService.EnsurePropertiesAreValid();
+            throw notEx;
+        }
+        catch (Exception ex)
+        {
+            Assert.That(ex, Is.Not.EqualTo(notEx));
+            Assert.That(ex, Is.TypeOf<PropertyException>());
+            
+            var pEx = (PropertyException)ex;
+            var result = pEx.ValidationResultArgs;
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.HasError, Is.EqualTo(true));
+                Assert.That(result.FirstError, Is.Not.Null);
+                Assert.That(result.ErrorMessages, Contains.Item(rule.ErrorMessage));
+                Assert.That(result.ErrorDictionary, Contains.Key(nameof(DummyViewModel.Value)));
+                Assert.That(result.ErrorDictionary, Contains.Value(new [] { rule.ErrorMessage }));
+            });
+        }
+    }
+    
+    [Test, Description("SetErrorFormatter() must modify the GetErrors() format.")]
+    public void MustFollowErrorMessageFormat()
+    {
+        var vm = new DummyViewModel();
+        var rule = new StringRequiredRule();
+        validationService.For(vm).AddRule(e => e.Value, rule);
+        validationService.SetErrorFormatter(errorMessages 
+            => "<error>" + errorMessages.FirstOrDefault() + "</error>"
+        );
+
+        _ = validationService.Validate();
+        var errorMessages = validationService.GetErrors();
+        
+        Assert.That(errorMessages, Contains.Value("<error>" + rule.ErrorMessage + "</error>"));
     }
 
     private static IEnumerable<TestCaseData> DummyViewModelFixturesStringRequiredRule
