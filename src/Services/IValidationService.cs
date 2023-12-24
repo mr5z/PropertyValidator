@@ -10,11 +10,12 @@ public interface IValidationService
     /// <summary>
     /// Registers the model for validation.
     /// </summary>
-    /// <typeparam name="TNotifiableModel"></typeparam>
-    /// <param name="notifiableModel">The notifiable model</param>
-    /// <param name="autofill">If true, it will automatically fills the error properties</param>
-    /// <param name="delay">Delays the fill up of error properties</param>
-    /// <returns>RuleCollection so that it can be chained.</returns>
+    /// <typeparam name="TNotifiableModel">The type that implements both <see cref="INotifyPropertyChanged"/> and <see cref="INotifiableModel"/>.</typeparam>
+    /// <param name="notifiableModel">The notifiable model.</param>
+    /// <param name="autofill">If true, it will automatically fills the error properties.</param>
+    /// <param name="delay">Delays the fill up of error properties.</param>
+    /// <returns><see cref="RuleCollection{TModel}"/> so that it can be chained.</returns>
+    /// <throws><see cref="InvalidOperationException"/> if called multiple times.</throws>
     IRuleCollection<TNotifiableModel> For<TNotifiableModel>(
         TNotifiableModel notifiableModel,
         bool autofill = true,
@@ -24,7 +25,7 @@ public interface IValidationService
     /// <summary>
     /// Ensure all properties are in a valid state based from the provided validation rules.
     /// </summary>
-    /// <throws>PropertyException if there is an error</throws>
+    /// <throws><see cref="Exceptions.PropertyException"/> if there is an error.</throws>
     void EnsurePropertiesAreValid();
 
     /// <summary>

@@ -118,6 +118,10 @@ public class ValidationService : IValidationService
         {
             var (propertyName, rules) = entry;
             var property = type.GetProperty(propertyName);
+            
+            if (property == null)
+                throw new InvalidOperationException($"Invalid state: '{propertyName}' cannot be access.");
+            
             var value = property.GetValue(target);
 
             var errorMessages = ValidatePropertyValue(rules, value);

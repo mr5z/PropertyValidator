@@ -34,6 +34,25 @@ public class Tests
         catch (Exception ex2)
         {
             Assert.That(ex2, Is.Not.EqualTo(ex1));
+            Assert.That(ex2, Is.TypeOf<InvalidOperationException>());
+        }
+    }
+
+    [Test, Description("Calling ValidationService.For() multiple times should throw an Exception.")]
+    public void MustThrowForMultipleCalls()
+    {
+        var ex1 = new Exception("This shouldn't be thrown.");
+        try
+        {
+            validationService.For(new DummyViewModel());
+            validationService.For(new DummyViewModel());
+            validationService.For(new DummyViewModel());
+            throw ex1;
+        }
+        catch (Exception ex2)
+        {
+            Assert.That(ex2, Is.Not.EqualTo(ex1));
+            Assert.That(ex2, Is.TypeOf<InvalidOperationException>());
         }
     }
 
