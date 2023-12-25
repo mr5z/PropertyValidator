@@ -76,6 +76,7 @@ PropertyValidator offers a range of features to streamline your validation proce
 - Provides options to manually trigger validation or automatically ensure properties are valid.
 - Offers event-based error handling through the `PropertyInvalid` event.
 - Supports delayed validation to enhance user experience.
+- Format error messages using `SetErrorFormatter(errorMessages => ...)`.
 
 ## ValidationPack - Common Validation Rules
 [ValidationPack](https://github.com/mr5z/PropertyValidator.ValidationPack) contains a set of common validation rules to cover popular input validation scenarios. The ValidationPack includes the following rules:
