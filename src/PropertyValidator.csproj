@@ -7,15 +7,17 @@
     <Authors>Mark Laureta</Authors>
     <Company>Nkraft</Company>
     <Description>A simple library to help you validate properties of class that implements INotifyPropertyChanged.</Description>
-    <PackageReleaseNotes>- Code refactors and minor improvements.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Code refactors and minor improvements.
+- Add `SetErrorFormatter` for formatting error messages.</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/mr5z/PropertyValidator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mr5z/PropertyValidator</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <FileVersion>1.1.0.1</FileVersion>
-    <AssemblyVersion>1.1.0.1</AssemblyVersion>
-    <Version>1.1.0.1</Version>
+    <FileVersion>1.1.1.0</FileVersion>
+    <AssemblyVersion>1.1.1.0</AssemblyVersion>
+    <Version>1.1.1.0</Version>
     <NeutralLanguage>en</NeutralLanguage>
     <Copyright>Copyright (c) 2023 Mark Laureta. All rights reserved.</Copyright>
+    <PackageLicenseUrl>https://github.com/mr5z/PropertyValidator/blob/main/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
   <ItemGroup>
