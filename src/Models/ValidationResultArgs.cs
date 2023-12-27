@@ -14,6 +14,5 @@ public class ValidationResultArgs(IDictionary<string, IEnumerable<string?>> erro
 
     public bool HasError => ErrorMessages?.Any() == true;
 
-    public string? FirstError => ErrorMessages?
-        .FirstOrDefault();
+    public string? FirstError => ErrorMessages?.FirstOrDefault();
 }

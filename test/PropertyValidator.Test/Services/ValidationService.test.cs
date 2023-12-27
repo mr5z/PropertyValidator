@@ -60,7 +60,7 @@ public class Tests
     [Test, Description("Validate() must not throw Exception if setup properly.")]
     public void MustNotThrowWhenConfigured()
     {
-        var ex1 = new Exception("This shouldn't be thrown.");
+        var ex1 = new Exception("This should be thrown.");
         try
         {
             validationService.For(new DummyViewModel());
@@ -115,7 +115,7 @@ public class Tests
         Assert.That(result, Is.EqualTo(true));
     }
 
-    [Test, Description("Validate() must validate for RangeLengthRule() rule.")]
+    [Test, Description("Validate() must return true with RangeLengthRule() rule.")]
     [TestCaseSource(nameof(DummyViewModelFixturesRangeLengthRule))]
     public void MustValidateRangeLengthRule(DummyViewModel vm, RangeLengthRule rule)
     {
@@ -125,7 +125,7 @@ public class Tests
 
         var result = validationService.Validate();
         
-        Assert.That(result, Is.EqualTo(true), $"Didn't succeed because vb.Value: '{vm.Value}', length: {vm.Value?.Length}");
+        Assert.That(result, Is.EqualTo(true), $"Didn't succeed because vm.Value: '{vm.Value}', length: {vm.Value?.Length}");
     }
 
     [Test, Description("PropertyInvalid must be invoked upon violation of property rules.")]
