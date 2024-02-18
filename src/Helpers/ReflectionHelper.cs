@@ -5,7 +5,7 @@ namespace PropertyValidator.Helpers;
 
 internal static class ReflectionHelper
 {
-    public static FieldInfo? GetField(Type? fromType, string fieldName)
+    internal static FieldInfo? GetField(Type? fromType, string fieldName)
     {
         const BindingFlags flags = BindingFlags.Instance |
                                    BindingFlags.NonPublic |

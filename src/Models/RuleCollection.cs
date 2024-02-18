@@ -14,24 +14,19 @@ public record PropertyChangedValidationEventArgs(string Name, object? Value);
 
 public class RuleCollection<TModel>(ActionCollection<TModel> actionCollection, object target) : IRuleCollection<TModel> where TModel : notnull
 {
-    private readonly object target = target;
-    private readonly ActionCollection<TModel> actionCollection = actionCollection;
     private readonly Dictionary<string, IEnumerable<IValidationRule>> validationRules = [];
 
     public event EventHandler<PropertyChangedValidationEventArgs>? ValidationResult;
 
-    private void TargetInstance_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void TargetInstance_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (this.target == null)
-            return;
-
-        var eventName = nameof(INotifyPropertyChanged.PropertyChanged);
-        var field = ReflectionHelper.GetField(this.target.GetType(), eventName);
-        var eventDelegate = (MulticastDelegate)field!.GetValue(this.target);
-        var properties = this.target.GetType().GetProperties();
-        var propInfo = properties.First(e => e.GetValue(this.target) == sender);
+        const string eventName = nameof(INotifyPropertyChanged.PropertyChanged);
+        var field = ReflectionHelper.GetField(target.GetType(), eventName);
+        var eventDelegate = (MulticastDelegate)field!.GetValue(target);
+        var properties = target.GetType().GetProperties();
+        var propInfo = properties.First(prop => prop.GetValue(target) == sender);
         var eventArgs = new PropertyChangedEventArgs(propInfo.Name);
-        eventDelegate.DynamicInvoke(this.target, eventArgs);
+        eventDelegate.DynamicInvoke(target, eventArgs);
     }
 
     public IRuleCollection<TModel> AddRule<TProperty>(
@@ -56,7 +51,7 @@ public class RuleCollection<TModel>(ActionCollection<TModel> actionCollection, o
         var propertyName = expression.GetMemberName();
         var propInfo = expression.GetPropertyInfo();
         var result = AddRule<TProperty>(propertyName, errorMessageOverride, rules);
-        var value = propInfo.GetValue(this.target, null);
+        var value = propInfo.GetValue(target, null);
         if (value is INotifyPropertyChanged notifiableObject)
         {
             notifiableObject.PropertyChanged -= TargetInstance_PropertyChanged;
@@ -81,7 +76,7 @@ public class RuleCollection<TModel>(ActionCollection<TModel> actionCollection, o
             rule.ErrorMessageOverride = errorMessageOverride;
         });
         this.validationRules[propertyName] = rules;
-        this.actionCollection.When<TProperty>(propertyName, it => {
+        actionCollection.When<TProperty>(propertyName, it => {
             var eventArgs = new PropertyChangedValidationEventArgs(propertyName, it);
             ValidationResult?.Invoke(this, eventArgs);
         });

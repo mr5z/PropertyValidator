@@ -1,6 +1,5 @@
 ﻿using ObservableProperty.Services;
 using PropertyValidator.Services;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
