@@ -87,7 +87,6 @@ PropertyValidator offers a range of features to streamline your validation proce
 - EmailFormatRule: Ensures that a string follows a valid email format.
 
 ## Creating Custom Validation Rules
-PropertyValidator allows you to create custom validation rules to suit your specific validation requirements. To create a custom validation rule, follow these steps:
 
 1. Create a new class that inherits from `ValidationRule<T>`, where `T` is the type of the property you want to validate.
 
@@ -115,15 +114,7 @@ public class AlphanumericRule : ValidationRule<string>
     }
 }
 ```
-Now, you can use your custom validation rule in your validation service. Here's an example of how to use the `AlphanumericRule`:
-
-```csharp
-var validationService = new ValidationService();
-
-// Register your model for validation and include the custom rule
-validationService.For(this)
-    .AddRule(e => e.Username, new AlphanumericRule());
-```
 
 ## Support
 Feel free to contribute to the project, report issues, or provide feedback to help us improve `PropertyValidator`.
+
